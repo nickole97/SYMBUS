@@ -6,7 +6,7 @@ SYMBUS is a repository that contains all the scripts and workflows used to perfo
 
 ## Overview
 
-This pipeline processes metagenomic sequencing data from bumblebee gut samples (both US and Colombian populations) to reconstruct, annotate, and quantify microbial genomes (MAGs - Metagenome-Assembled Genomes). The workflow spans from raw read quality control through taxonomic and functional annotation.
+This pipeline processes metagenomic sequencing data from bumblebee gut samples (both US and Colombian populations) to reconstruct, annotate, and quantify microbial genomes (MAGs - Metagenome-Assembled Genomes). The workflow starts from raw read quality control through taxonomic and functional annotation. Some steps have already been implemented, other are currently under development and will be incorporated soon. 
 
 ## Pipeline Workflow
 
@@ -25,7 +25,7 @@ The pipeline consists of eight major steps:
 
 ## Computing Environment
 
-All analyses were performed on the **HPC3 cluster** at the **University of California, Irvine** running Linux OS (Ubuntu 24).
+All analyses were performed on the [HPC3 cluster](https://rcic.uci.edu/hpc3/index.html) at the **University of California, Irvine** running Linux OS (Ubuntu 24).
 
 ## Requirements
 
