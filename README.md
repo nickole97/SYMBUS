@@ -43,7 +43,6 @@ The pipeline uses the following bioinformatics tools:
 
 **Assembly:**
 - [MEGAHIT](https://github.com/voutcn/megahit) (v1.2.9) - metagenomic assembler
-- [MetaQUAST](http://quast.sourceforge.net/metaquast) - assembly quality assessment
 
 **Binning:**
 - [MetaBAT2](https://bitbucket.org/berkeleylab/metabat/src/master/) - binning based on coverage and composition
@@ -151,7 +150,6 @@ Key outputs include:
 ## Contributors
 
 - **Nickole Villabona** - Pipeline development and analysis
-- **Hammert Lab** - UC Irvine
 
 ## Contact
 
