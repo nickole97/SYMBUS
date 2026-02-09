@@ -80,10 +80,6 @@ SYMBUS/
 ├── README.md                          # This file
 ├── assets/                            # Images and diagrams
 │   └── SYMBUS_PIPELINE.png
-├── docs/                              # Detailed documentation
-│   ├── pipeline_details.md            # Step-by-step pipeline guide
-│   ├── software_requirements.md       # Installation instructions
-│   └── troubleshooting.md             # Common issues and solutions
 ├── scripts/                           # Analysis scripts
 │   ├── 1_preprocessing/               # Quality control and host removal
 │   ├── 2_assembly/                    # Metagenomic assembly
