@@ -25,7 +25,7 @@ The pipeline consists of eight major steps:
 
 ## Computing Environment
 
-All analyses were performed on the [HPC3 cluster](https://rcic.uci.edu/hpc3/index.html) at the **University of California, Irvine** running Linux OS (Ubuntu 24).
+All analyses were performed on the [HPC3 cluster](https://rcic.uci.edu/about/intro.html) at the **University of California, Irvine** running Linux OS (Ubuntu 24).
 
 ## Requirements
 
