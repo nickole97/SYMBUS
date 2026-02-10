@@ -34,8 +34,7 @@ All analyses were performed on the [HPC3 cluster](https://rcic.uci.edu/about/int
 The pipeline uses the following bioinformatics tools:
 
 **Quality Control & Preprocessing:**
-- [BBMap/BBDuk](https://jgi.doe.gov/data-and-tools/software-tools/bbtools/) (v38.96) - adapter trimming and quality filtering
-- [BBMerge](https://jgi.doe.gov/data-and-tools/software-tools/bbtools/) (v38.96) - read merging
+- [BBMap/BBDuk]([https://jgi.doe.gov/data-and-tools/software-tools/bbtools/](https://github.com/bbushnell/BBTools) (v38.96) - adapter trimming and quality filtering
 
 **Host Removal & Mapping:**
 - [Minimap2](https://github.com/lh3/minimap2) (v2.28) - fast sequence alignment
