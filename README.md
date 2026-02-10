@@ -1,6 +1,6 @@
 # SYMBUS
 
-**Symbiosis Between Bumblebees and their gut microbiomes Using Metagenomics**
+**Symbiosis between bumblebees and their gut microbiomes using metagenomics**
 
 SYMBUS is a repository that contains all the scripts and workflows used to perform the analysis of the symbiosis between bumblebees and their gut microbiomes from the metagenomes of *Bombus* species.
 
