@@ -22,6 +22,7 @@ The pipeline consists of eight major steps:
 6. **Dereplication**: Selection and dereplication of high-quality MAGs
 7. **Abundance**: Quantification of MAG abundance across samples
 8. **Annotation**: Taxonomic and functional annotation
+9. **Strain Diversity**: Microdiversity and strain-level analysis using inStrain
 
 ## Computing Environment
 
@@ -62,6 +63,12 @@ The pipeline uses the following bioinformatics tools:
 - [KOfamScan](https://github.com/takaram/kofam_scan) - KEGG pathway annotation (planned)
 - [dbCAN2](https://github.com/linnabrown/run_dbcan) - CAZyme annotation (planned)
 
+**Strain Diversity:**
+
+* [Prodigal](https://github.com/hyattpd/Prodigal) (v2.6.3) - gene prediction
+* [inStrain](https://github.com/MrOlm/inStrain) (v1.8.0) - microdiversity and strain-level analysis
+
+
 ### Conda Environments
 
 The pipeline uses several conda environments to manage dependencies:
@@ -71,6 +78,7 @@ The pipeline uses several conda environments to manage dependencies:
 - `drep` (dRep)
 - `coverm_env` (CoverM)
 - `quast_env` (MetaQUAST)
+- `instrain_env` (inStrain, Minimap2, Samtools)
 
 ## Repository Structure
 
@@ -88,6 +96,12 @@ SYMBUS/
 │   ├── 6_dereplication/               # MAG selection and dereplication
 │   ├── 7_abundance/                   # Abundance estimation
 │   └── 8_annotation/                  # Taxonomic and functional annotation
+    └── 10_inStrain/                   # Strain diversity analysis
+        ├── 10a_prodigal.sh            # Gene prediction on dereplicated MAGs
+        ├── 10b_prepare_refs.sh        # Reference preparation (FASTA + STB)
+        ├── 10c_mapping.sh             # Read mapping with Minimap2 (SLURM array)
+        ├── 10d_instrain_profile.sh    # inStrain profile per sample (SLURM array)
+        └── 10e_instrain_compare.sh    # inStrain compare across all samples
 └── notebooks/
     └── 00_pipeline_notebook.md        # Analysis notebook with all steps
 ```
@@ -106,6 +120,7 @@ Each script is designed to run as an **SLURM array job** on the HPC cluster, pro
 2. **Proceed through assembly** (`2_assembly/`) to generate contigs for each sample
 3. **Continue sequentially** through mapping, binning, quality control, dereplication, and abundance estimation
 4. **Finish with annotation** to assign taxonomy and function to your MAGs
+5. **Run strain diversity analysis** (`10_inStrain/`) sequentially: `10b → 10a → 10c → 10d → 10e`
 
 Each script contains detailed header comments explaining:
 - Purpose and inputs/outputs
@@ -116,31 +131,87 @@ Each script contains detailed header comments explaining:
 
 See individual scripts for specific usage and parameters.
 
+### Step 9: Strain Diversity Analysis (inStrain)
+
+This step performs microdiversity and strain-level analysis to investigate strain sharing and diversity across *Bombus* species.
+
+#### Overview
+
+inStrain detects single nucleotide variants (SNVs) in metagenomic reads mapped to dereplicated MAGs, and calculates population-level ANI (popANI) between samples to identify shared strains.
+
+#### Biological Questions Addressed
+
+* Do different *Bombus* species harbor distinct bacterial strains?
+* Is there greater strain diversity in tropical vs. temperate populations?
+* Is there co-diversification between *Bombus* host phylogeny and gut bacterial strains?
+
+#### Scripts (run in this order)
+
+| Script | Description | Job Type |
+|--------|-------------|----------|
+| `10b_prepare_refs.sh` | Concatenates dereplicated MAGs and creates scaffold-to-bin file | Single job |
+| `10a_prodigal.sh` | Gene prediction on concatenated MAGs using Prodigal (meta mode) | Single job |
+| `10c_mapping.sh` | Maps clean reads to dereplicated MAGs using Minimap2 | SLURM array |
+| `10d_instrain_profile.sh` | Runs inStrain profile for each sample | SLURM array |
+| `10e_instrain_compare.sh` | Compares all profiles and calculates popANI | Single job |
+
+#### Key Parameters
+
+* MAG dereplication: 95% ANI (species-level)
+* Minimap2 preset: `sr` (short reads)
+* inStrain minimum read ANI: 0.95
+* inStrain minimum coverage: 1x
+* inStrain minimum allele frequency: 0.05
+
+#### Output Files
+
+* `10b_mapping/*.sorted.bam` - Sorted BAM files (one per sample)
+* `10c_profiles/*.IS/output/` - inStrain profiles including:
+  * `*_SNVs.tsv` - All detected SNVs
+  * `*_genome_info.tsv` - Coverage and breadth per MAG
+  * `*_gene_info.tsv` - Gene-level diversity statistics
+  * `*_scaffold_info.tsv` - Scaffold-level statistics
+* `10d_compare/all_samples/output/` - Comparison results including:
+  * `all_samples_comparisonsTable.tsv` - pairwise popANI between all samples
+  * `all_samples_genomeWide_compare.tsv` - genome-wide comparison
+  * `all_samples_strain_clusters.tsv` - strain cluster assignments
+
 ### Key Quality Thresholds
 
 MAGs are selected based on these criteria:
-- **High quality**: Completeness ≥90%, Contamination <5%
-- **Medium quality**: Completeness ≥70%, Contamination <10%
-- **Strain diversity**: Coverage ≥5×, Breadth ≥50%
-- **Dereplication**: 99% ANI threshold (species-level)
+
+* **High quality**: Completeness ≥90%, Contamination <5%
+* **Medium quality**: Completeness ≥70%, Contamination <10%
+* **Dereplication (MAG selection)**: 99% ANI threshold (strain-level)
+* **Dereplication (inStrain reference)**: 95% ANI threshold (species-level)
+
+### inStrain Parameters
+
+* **Minimum read ANI**: 0.95
+* **Minimum coverage**: 1x
+* **Minimum allele frequency**: 0.05
+## Input Data
 
 ## Input Data
 
 The pipeline expects paired-end Illumina metagenomic reads:
-- US bumblebee samples: 91 samples from Western US *Bombus* species
-- Colombian bumblebee samples: Additional samples from Colombian populations
-- Format: Interleaved or paired FASTQ files (`.fq.gz` or `.fastq.gz`)
+
+* US bumblebee samples: 91 samples from Western US *Bombus* species
+* Colombian bumblebee samples: Additional samples from Colombian populations
+* Format: Interleaved or paired FASTQ files (`.fq.gz` or `.fastq.gz`)
 
 ## Output Data
 
 Key outputs include:
-- Quality-filtered, host-removed reads
-- Assembled contigs (minimum 1000 bp)
-- Genome bins from individual samples
-- High-quality, dereplicated MAGs (species representatives)
-- Taxonomic assignments (GTDB taxonomy)
-- Abundance matrices across all samples
-- Functional annotations (in progress)
+
+* Quality-filtered, host-removed reads
+* Assembled contigs (minimum 1000 bp)
+* Genome bins from individual samples
+* High-quality, dereplicated MAGs (species representatives)
+* Taxonomic assignments (GTDB taxonomy)
+* Abundance matrices across all samples
+* Functional annotations (in progress)
+* Strain diversity profiles and popANI comparisons across all samples
 
 ## Contributors
 
