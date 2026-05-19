@@ -1,4 +1,4 @@
-pero#!/usr/bin/env bash
+#!/usr/bin/env bash
 #SBATCH --job-name=qual_pre_only
 #SBATCH --output=/dfs10/hammert-lab/nvillabo/Ch2/work_meta/logs/qual_pre_only_%j.out
 #SBATCH --error=/dfs10/hammert-lab/nvillabo/Ch2/work_meta/logs/qual_pre_only_%j.err
