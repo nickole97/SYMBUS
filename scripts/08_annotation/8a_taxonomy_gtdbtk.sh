@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=gtdbtk
 #SBATCH --cpus-per-task=16
-#SBATCH --mem=128G
+#SBATCH --mem=256G
 #SBATCH --time=48:00:00
 #SBATCH --partition=standard
 #SBATCH --account=hammert_lab
@@ -25,6 +25,9 @@
 #         - identify/ (marker gene identification)
 #
 # Tools: GTDB-Tk v2.5.2 (classify_wf workflow)
+#
+# Note: skani ANI screening requires ~200 GB RAM for GTDB r226
+#       (143,614 reference genomes). Requesting 256 GB to be safe.
 #
 # Usage: sbatch 8a_taxonomy_gtdbtk.sh
 # Runtime: ~24-48 hours depending on number of MAGs
