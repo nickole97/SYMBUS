@@ -7,7 +7,7 @@ NV018__13_sub	MAG	Novel sp. E	Bombus sp. (Colombia)	Bombus_Colombia_novel	Colomb
 202006191520__22_sub	MAG	S. alvi_D	Bombus sp. (USA)	Bombus_USA	USA	This study	—	Most data: 325 comparisons
 202206071041G__39	MAG	S. communis	Bombus griseocollis	Bombus_USA	USA	This study	—	Known species
 S_alvi_wkB2	REF	S. alvi	Apis mellifera	Apis	USA	Kwong & Moran 2013	GCF_000600005.1	Type strain
-S_alvi_K-FP26	REF	S. alvi	Apis mellifera iberiensis	Apis	Portugal	Liberio et al. 2024	CP132376	Complete genome
+S_alvi_K-FP26	REF	S. alvi	Apis mellifera iberiensis	Apis	Portugal	Liberio et al. 2024	GCF_030758695.1	Complete genome (CP132376)
 S_alvi_Acerana	REF	S. alvi (novel Apis gr.1)	Apis cerana	Apis	Singapore	Cornet et al. 2022	GCF_002777855.1
 S_alvi_Aflorea	REF	S. alvi (novel Apis gr.1)	Apis florea	Apis	Singapore	Cornet et al. 2022	GCF_002777655.1
 S_alvi_Aandreniformis	REF	S. alvi (novel Apis gr.1)	Apis andreniformis	Apis	Singapore	Cornet et al. 2022	GCF_002777775.1

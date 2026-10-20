@@ -29,7 +29,7 @@ fi
 # S. alvi from Apis (confirmed accessions)
 APIS_ACCS=(
     "GCF_000600005.1"   # S. alvi wkB2 — type strain — A. mellifera USA
-    "CP132376"          # S. alvi K-FP26 — A. mellifera iberiensis Portugal
+    "GCF_030758695.1"   # S. alvi K-FP26 — A. mellifera iberiensis Portugal (CP132376)
     "GCF_002777855.1"   # novel Apis gr.1 — A. cerana Singapore
     "GCF_002777655.1"   # novel Apis gr.1 — A. florea Singapore
     "GCF_002777775.1"   # novel Apis gr.1 — A. andreniformis Singapore
