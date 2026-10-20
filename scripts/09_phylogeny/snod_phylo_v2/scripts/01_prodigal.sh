@@ -14,8 +14,9 @@
 # Produces .faa (protein) for OrthoFinder
 # ─────────────────────────────────────────────────────────────────────────────
 
-set -euo pipefail
 source ~/.bashrc
+conda activate prodigal-env 2>/dev/null || conda activate base
+set -euo pipefail
 
 ROOT="/dfs10/hammert-lab/nvillabo/Ch2/work_meta/09_phylogeny/snod_phylo_v2"
 MANIFEST="${ROOT}/00_metadata/all_genomes.txt"
@@ -32,8 +33,6 @@ mkdir -p "${OUT}"
 
 echo "Genome: ${GENOME_ID}"
 echo "FASTA:  ${FA}"
-
-conda activate prodigal-env 2>/dev/null || conda activate base
 
 prodigal \
     -i "${FA}" \

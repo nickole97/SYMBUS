@@ -12,9 +12,9 @@
 #         then concatenate into a protein supermatrix
 # ─────────────────────────────────────────────────────────────────────────────
 
-set -euo pipefail
 source ~/.bashrc
 conda activate mafft-env 2>/dev/null || conda activate base
+set -euo pipefail
 
 ROOT="/dfs10/hammert-lab/nvillabo/Ch2/work_meta/09_phylogeny/snod_phylo_v2"
 OG_DIR="${ROOT}/05_core_OGs"
