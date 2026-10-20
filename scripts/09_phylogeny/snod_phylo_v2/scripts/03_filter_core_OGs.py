@@ -28,16 +28,17 @@ args = parser.parse_args()
 outdir = Path(args.outdir)
 outdir.mkdir(parents=True, exist_ok=True)
 
+# Column headers in Orthogroups.tsv ARE the genome IDs (input .faa basenames)
 with open(args.orthogroups) as fh:
     header = fh.readline().strip().split("\t")
-    taxa = header[1:]
-    n_taxa = len(taxa)
+taxa = header[1:]
+n_taxa = len(taxa)
 
 min_taxa = args.min_taxa if args.min_taxa is not None else n_taxa
 print(f"Taxa in OrthoFinder table: {n_taxa}")
 print(f"Requiring presence in:      {min_taxa} (all={n_taxa})")
 
-core_OGs = []
+core_OGs = []   # list of (og_id, {genome_id: gene_id})
 multi_copy = 0
 missing = 0
 
@@ -47,17 +48,21 @@ with open(args.orthogroups) as fh:
         parts = line.strip().split("\t")
         og_id = parts[0]
         genes = parts[1:]
+        # TSV may omit trailing tabs for absent taxa
+        while len(genes) < n_taxa:
+            genes.append("")
 
-        present = [g for g in genes if g.strip()]
+        present = [i for i, g in enumerate(genes) if g.strip()]
         if len(present) < min_taxa:
             missing += 1
             continue
 
-        if any("," in g for g in present if g.strip()):
+        if any("," in genes[i] for i in present):
             multi_copy += 1
             continue
 
-        core_OGs.append(og_id)
+        genome_to_gene = {taxa[i]: genes[i].strip() for i in present}
+        core_OGs.append((og_id, genome_to_gene))
 
 total = len(core_OGs) + multi_copy + missing
 print(f"\nTotal OGs parsed:       {total}")
@@ -68,22 +73,27 @@ print(f"  Single-copy core:     {len(core_OGs)}")
 faa_dir = Path(args.faa_dir)
 not_found = []
 written = 0
-for og in core_OGs:
-    src = faa_dir / f"{og}.fa"
+
+for og_id, genome_to_gene in core_OGs:
+    src = faa_dir / f"{og_id}.fa"
     if not src.exists():
-        not_found.append(og)
+        not_found.append(og_id)
         continue
+
+    # Index all sequences by their record ID (full gene header after sed)
+    seq_index = SeqIO.to_dict(SeqIO.parse(src, "fasta"))
+
     records = []
-    for rec in SeqIO.parse(src, "fasta"):
-        # OrthoFinder gene IDs: genome_id_geneN
-        # Strip the trailing _N (gene number) to recover the genome_id.
-        # This handles genome IDs that themselves contain underscores.
-        parts = rec.id.rsplit("_", 1)
-        genome_id = parts[0] if len(parts) == 2 and parts[1].isdigit() else rec.id
+    for genome_id, gene_id in genome_to_gene.items():
+        if gene_id not in seq_index:
+            print(f"WARNING: '{gene_id}' not in {src.name}", file=sys.stderr)
+            continue
+        rec = seq_index[gene_id]
         rec.id = genome_id
         rec.description = ""
         records.append(rec)
-    SeqIO.write(records, outdir / f"{og}.faa", "fasta")
+
+    SeqIO.write(records, outdir / f"{og_id}.faa", "fasta")
     written += 1
 
 print(f"\nWrote {written} OG .faa files to: {outdir}")
@@ -92,5 +102,5 @@ if not_found:
 
 og_list_file = outdir / "core_OG_ids.txt"
 with open(og_list_file, "w") as fh:
-    fh.write("\n".join(core_OGs) + "\n")
+    fh.write("\n".join(og for og, _ in core_OGs) + "\n")
 print(f"OG ID list: {og_list_file}")
