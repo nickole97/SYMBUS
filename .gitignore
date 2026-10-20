@@ -1,0 +1,33 @@
+# Large data files — never commit
+*.fna
+*.fa
+*.faa
+*.ffn
+*.fq
+*.fastq
+*.gz
+*.bam
+*.bai
+*.sam
+*.zip
+
+# Pipeline output directories (data, not scripts)
+**/01_reference_genomes/
+**/02_our_MAGs/
+**/03_prodigal/
+**/04_orthofinder/
+**/05_core_OGs/
+**/06_alignments/
+**/07_iqtree/
+**/logs/
+
+# Slurm logs
+*.out
+*.err
+
+# Python
+__pycache__/
+*.pyc
+
+# Mac
+.DS_Store

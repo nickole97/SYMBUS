@@ -1,0 +1,18 @@
+genome_id	type	snod_species	host_bee	host_group	country	source	accession	notes
+NV006__54_sub	MAG	Novel sp. A	Bombus funebris	Bombus_Colombia_novel	Colombia	This study	—	inStrain: 8 samples
+NV015__NV015_metabat.8	MAG	Novel sp. B	Bombus sp. (Colombia)	Bombus_Colombia_novel	Colombia	This study	—	Not in MagsToUse_SD
+NV022__NV022_metabat.5	MAG	Novel sp. C	Bombus robustus	Bombus_Colombia_novel	Colombia	This study	—	inStrain: 8 samples
+NV048__NV048_metabat.2	MAG	Novel sp. D	Bombus sp. (Colombia)	Bombus_Colombia_novel	Colombia	This study	—	inStrain: 3 samples
+NV018__13_sub	MAG	Novel sp. E	Bombus sp. (Colombia)	Bombus_Colombia_novel	Colombia	This study	—	inStrain: 4 samples
+202006191520__22_sub	MAG	S. alvi_D	Bombus sp. (USA)	Bombus_USA	USA	This study	—	Most data: 325 comparisons
+202206071041G__39	MAG	S. communis	Bombus griseocollis	Bombus_USA	USA	This study	—	Known species
+S_alvi_wkB2	REF	S. alvi	Apis mellifera	Apis	USA	Kwong & Moran 2013	GCF_000600005.1	Type strain
+S_alvi_K-FP26	REF	S. alvi	Apis mellifera iberiensis	Apis	Portugal	Liberio et al. 2024	CP132376	Complete genome
+S_alvi_Acerana	REF	S. alvi (novel Apis gr.1)	Apis cerana	Apis	Singapore	Cornet et al. 2022	GCF_002777855.1
+S_alvi_Aflorea	REF	S. alvi (novel Apis gr.1)	Apis florea	Apis	Singapore	Cornet et al. 2022	GCF_002777655.1
+S_alvi_Aandreniformis	REF	S. alvi (novel Apis gr.1)	Apis andreniformis	Apis	Singapore	Cornet et al. 2022	GCF_002777775.1
+S_communis_type	REF	S. communis	Bombus griseocollis	Bombus_USA_ref	USA	Cornet et al. 2022	GCF_002777335.1	Type strain species
+S_gandavensis_type	REF	S. gandavensis	Bombus pascuorum	Bombus_EU_ref	Belgium	Cornet et al. 2022	GCA_914768025.1	Type strain species
+ESL0693	REF	Neisseriaceae (Snodgrassella)	Stingless bee	Stingless_bee	Neotropics	Engel lab / mBio 2023	GCA_029433475.1	TaxID 2983239
+ESL0721	REF	Orbaceae (Gilliamella)	Stingless bee	Stingless_bee	Neotropics	Engel lab / mBio 2023	GCA_029433365.1	TaxID 2983241
+ESL0727	REF	Orbaceae (Gilliamella)	Stingless bee	Stingless_bee	Neotropics	Engel lab / mBio 2023	GCA_029433345.1	TaxID 2983240
