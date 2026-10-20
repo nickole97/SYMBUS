@@ -11,8 +11,8 @@
 
 set -euo pipefail
 
-ROOT="$HOME/snod_phylo_v2"
-MAG_SRC="$HOME/Ch2/06_MAGs_selected"   # adjust if different on HPC
+ROOT="/dfs10/hammert-lab/nvillabo/Ch2/work_meta/09_phylogeny/snod_phylo_v2"
+MAG_SRC="/dfs10/hammert-lab/nvillabo/Ch2/work_meta/06_MAGs_selected"
 OUTDIR="${ROOT}/02_our_MAGs"
 mkdir -p "${OUTDIR}"
 

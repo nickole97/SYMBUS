@@ -13,7 +13,7 @@
 
 set -euo pipefail
 
-ROOT="$HOME/snod_phylo_v2"
+ROOT="/dfs10/hammert-lab/nvillabo/Ch2/work_meta/09_phylogeny/snod_phylo_v2"
 OUTDIR="${ROOT}/01_reference_genomes"
 mkdir -p "${OUTDIR}"
 

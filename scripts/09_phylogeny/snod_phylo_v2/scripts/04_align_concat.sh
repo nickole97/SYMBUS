@@ -16,7 +16,7 @@ set -euo pipefail
 source ~/.bashrc
 conda activate mafft-env 2>/dev/null || conda activate base
 
-ROOT="$HOME/snod_phylo_v2"
+ROOT="/dfs10/hammert-lab/nvillabo/Ch2/work_meta/09_phylogeny/snod_phylo_v2"
 OG_DIR="${ROOT}/05_core_OGs"
 ALN_DIR="${ROOT}/06_alignments"
 mkdir -p "${ALN_DIR}/raw" "${ALN_DIR}/trimmed"
@@ -48,7 +48,7 @@ from Bio.SeqRecord import SeqRecord
 from Bio.Seq import Seq
 from collections import defaultdict
 
-root = Path(os.environ["HOME"]) / "snod_phylo_v2"
+root = Path("/dfs10/hammert-lab/nvillabo/Ch2/work_meta/09_phylogeny/snod_phylo_v2")
 aln_dir = root / "06_alignments/trimmed"
 out_dir  = root / "06_alignments"
 

@@ -16,7 +16,7 @@ set -euo pipefail
 source ~/.bashrc
 conda activate orthofinder-env 2>/dev/null || conda activate base
 
-ROOT="$HOME/snod_phylo_v2"
+ROOT="/dfs10/hammert-lab/nvillabo/Ch2/work_meta/09_phylogeny/snod_phylo_v2"
 MANIFEST="${ROOT}/00_metadata/all_genomes.txt"
 FAA_INPUT="${ROOT}/04_orthofinder/faa_input"
 mkdir -p "${FAA_INPUT}" "${ROOT}/logs"

@@ -10,7 +10,7 @@
 
 set -euo pipefail
 
-ROOT="$HOME/snod_phylo_v2"
+ROOT="/dfs10/hammert-lab/nvillabo/Ch2/work_meta/09_phylogeny/snod_phylo_v2"
 MANIFEST="${ROOT}/00_metadata/all_genomes.txt"
 
 : > "${MANIFEST}"

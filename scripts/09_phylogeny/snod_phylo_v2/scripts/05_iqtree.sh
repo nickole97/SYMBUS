@@ -18,7 +18,7 @@ set -euo pipefail
 source ~/.bashrc
 conda activate iqtree-env 2>/dev/null || conda activate base
 
-ROOT="$HOME/snod_phylo_v2"
+ROOT="/dfs10/hammert-lab/nvillabo/Ch2/work_meta/09_phylogeny/snod_phylo_v2"
 ALN="${ROOT}/06_alignments/supermatrix.faa"
 PART="${ROOT}/06_alignments/partitions.txt"
 OUT="${ROOT}/07_iqtree"
