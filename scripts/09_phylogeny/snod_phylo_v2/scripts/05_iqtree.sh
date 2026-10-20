@@ -15,7 +15,7 @@
 # ─────────────────────────────────────────────────────────────────────────────
 
 source ~/.bashrc
-conda activate iqtree-env 2>/dev/null || conda activate base
+conda activate phylo
 set -euo pipefail
 
 ROOT="/dfs10/hammert-lab/nvillabo/Ch2/work_meta/09_phylogeny/snod_phylo_v2"
