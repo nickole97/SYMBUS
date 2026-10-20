@@ -41,8 +41,7 @@ orthofinder \
     -t ${SLURM_CPUS_PER_TASK} \
     -a ${SLURM_CPUS_PER_TASK} \
     -o "${ROOT}/04_orthofinder/results" \
-    -M msa \
-    -ot
+    -M msa
 
 echo ""
 echo "OrthoFinder complete."
