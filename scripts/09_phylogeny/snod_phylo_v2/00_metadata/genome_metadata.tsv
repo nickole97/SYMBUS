@@ -14,5 +14,3 @@ S_alvi_Aandreniformis	REF	S. alvi (novel Apis gr.1)	Apis andreniformis	Apis	Sing
 S_communis_type	REF	S. communis	Bombus griseocollis	Bombus_USA_ref	USA	Cornet et al. 2022	GCF_002777335.1	Type strain species
 S_gandavensis_type	REF	S. gandavensis	Bombus pascuorum	Bombus_EU_ref	Belgium	Cornet et al. 2022	GCA_914768025.1	Type strain species
 ESL0693	REF	Neisseriaceae (Snodgrassella)	Stingless bee	Stingless_bee	Neotropics	Engel lab / mBio 2023	GCA_029433475.1	TaxID 2983239
-ESL0721	REF	Orbaceae (Gilliamella)	Stingless bee	Stingless_bee	Neotropics	Engel lab / mBio 2023	GCA_029433365.1	TaxID 2983241
-ESL0727	REF	Orbaceae (Gilliamella)	Stingless bee	Stingless_bee	Neotropics	Engel lab / mBio 2023	GCA_029433345.1	TaxID 2983240
