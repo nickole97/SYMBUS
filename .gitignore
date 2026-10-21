@@ -31,3 +31,8 @@ __pycache__/
 
 # Mac
 .DS_Store
+
+# R generated outputs — never commit
+*.html
+*.knit.md
+*_files/

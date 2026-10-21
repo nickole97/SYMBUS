@@ -1,0 +1,1372 @@
+---
+title: "CAZyme Functional Profiling of *Bombus* Gut Microbiota MAGs"
+author: "Natalia Villabona"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+    theme: flatly
+    highlight: tango
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.width = 10,
+  fig.height = 6,
+  dpi = 150
+)
+```
+
+```{r libraries}
+library(tidyverse)
+library(pheatmap)
+library(RColorBrewer)
+library(ggplot2)
+library(patchwork)
+library(vegan)
+library(ggrepel)
+library(scales)
+library(UpSetR)
+```
+
+# 1. Load and Prepare Data
+
+```{r load-data}
+cazyme_raw <- read.table("/Users/nickolevillabona/Documents/Chapter2/cazyme_matrix.tsv", sep = "\t", header = TRUE,
+                          row.names = 1, check.names = FALSE)
+
+taxonomy <- read.table("/Users/nickolevillabona/Documents/Chapter2/combined_taxonomy_splitted.txt", sep = "\t",
+                        header = TRUE, stringsAsFactors = FALSE)
+
+metadata <- read.csv("/Users/nickolevillabona/Documents/Chapter2/bombus_sample_metadata_2026.csv",
+                      stringsAsFactors = FALSE)
+
+taxonomy <- taxonomy %>%
+  mutate(sample_id = sub("__.*$", "", Genome))
+
+cazyme_df <- cazyme_raw %>%
+  rownames_to_column("Genome") %>%
+  mutate(sample_id = sub("__.*$", "", Genome))
+
+df <- cazyme_df %>%
+  left_join(taxonomy, by = c("Genome" = "Genome")) %>%
+  left_join(metadata, by = c("sample_id.x" = "sample_id")) %>%
+  rename(sample_id = sample_id.x)
+
+df <- df %>%
+  mutate(
+    Genus_clean = gsub("g__", "", Genus),
+    Species_clean = gsub("s__", "", Snodgrassella),
+    country = ifelse(is.na(country), "Unknown", country)
+  )
+
+cat("MAGs total:", nrow(df), "\n")
+cat("Genera found:", paste(unique(df$Genus_clean), collapse = ", "), "\n")
+cat("Countries:", paste(unique(df$country), collapse = ", "), "\n")
+```
+
+```{r color-palettes}
+genus_colors <- c(
+  # Corbiculate Core - azules/verdes
+  "Snodgrassella"      = "#007191",
+  "Gilliamella"        = "#4DAEDB",
+  "Schmidhempelia"     = "#62c8d3",
+  "Bifidobacterium"    = "#50ad9f",
+  "Bombiscardovia"     = "#4CAF7D",
+  "Apibacter"          = "#55B456",
+  "Apilactobacillus"   = "#7AC36A",
+  "Lactobacillus"      = "#D4E89A",
+  # Environmental - naranjas/marrones
+  "Fructobacillus"     = "#F39C12",
+  "Arsenophonus"       = "#D4AC0D",
+  "Enterobacter"       = "#E74C3C",
+  # Unknown
+  "Unknown"            = "#ECF0F1"
+)
+
+country_colors <- c("US" = "#3498DB", "Colombia" = "#EA801C", "Unknown" = "#95A5A6")
+```
+
+---
+
+# 2. CAZyme Overview by Bacterial Genus
+
+## 2.1 Total CAZyme gene counts per genus
+
+```{r total-cazymes-genus, fig.height=5}
+cazyme_cols <- names(cazyme_raw)
+
+df <- df %>%
+  mutate(total_cazymes = rowSums(select(., all_of(cazyme_cols)), na.rm = TRUE))
+
+genus_summary <- df %>%
+  group_by(Genus_clean) %>%
+  summarise(
+    n_MAGs = n(),
+    mean_cazymes = mean(total_cazymes),
+    se_cazymes = sd(total_cazymes) / sqrt(n()),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(mean_cazymes))
+
+ggplot(genus_summary, aes(x = reorder(Genus_clean, mean_cazymes),
+                           y = mean_cazymes, fill = Genus_clean)) +
+  geom_col(color = "grey30", linewidth = 0.3) +
+  geom_errorbar(aes(ymin = mean_cazymes - se_cazymes,
+                    ymax = mean_cazymes + se_cazymes),
+                width = 0.3, linewidth = 0.5) +
+  geom_text(aes(label = paste0("n=", n_MAGs)),
+            hjust = -0.3, size = 3, color = "grey40") +
+  scale_fill_manual(values = genus_colors, guide = "none") +
+  coord_flip() +
+  labs(
+    title = "Total CAZyme gene content per bacterial genus",
+    subtitle = "Mean ± SE, filtered for #ofTools ≥ 2",
+    x = NULL,
+    y = "Mean number of CAZyme genes"
+  ) +
+  theme_classic(base_size = 12) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    axis.text.y = element_text(face = "italic")
+  ) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15)))
+```
+
+```{r total-cazymes-genus-country}
+genus_summary_country <- df %>%
+  filter(Genus_clean != "", !is.na(Genus_clean)) %>%
+  group_by(Genus_clean, country) %>%
+  summarise(
+    n_MAGs = n(),
+    mean_cazymes = mean(total_cazymes),
+    se_cazymes = sd(total_cazymes) / sqrt(n()),
+    .groups = "drop"
+  ) %>%
+  filter(n_MAGs > 0) %>%
+  arrange(desc(mean_cazymes))
+
+ggplot(genus_summary_country,
+       aes(x = reorder(Genus_clean, mean_cazymes),
+           y = mean_cazymes, fill = Genus_clean)) +
+  geom_col(color = "grey30", linewidth = 0.3) +
+  geom_errorbar(aes(ymin = mean_cazymes - se_cazymes,
+                    ymax = mean_cazymes + se_cazymes),
+                width = 0.3, linewidth = 0.5) +
+  geom_text(aes(label = paste0("n=", n_MAGs)),
+            hjust = -0.3, size = 3, color = "grey40") +
+  scale_fill_manual(values = genus_colors, guide = "none") +
+  coord_flip() +
+  facet_wrap(~ country, ncol = 2) +
+  labs(
+    title = "Total CAZyme gene content per bacterial genus",
+    subtitle = "Mean ± SE, filtered for #ofTools ≥ 2",
+    x = NULL,
+    y = "Mean number of CAZyme genes"
+  ) +
+  theme_classic(base_size = 12) +
+  theme(
+    plot.title  = element_text(face = "bold"),
+    axis.text.y = element_text(face = "italic"),
+    strip.text  = element_text(face = "bold", size = 12),
+    strip.background = element_rect(fill = "grey95", color = "grey70")
+  ) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15)))
+```
+
+## 2.2 CAZyme class breakdown by genus
+
+```{r cazyme-class-genus, fig.height=6}
+df_long <- df %>%
+  select(Genome, Genus_clean, country, all_of(cazyme_cols)) %>%
+  pivot_longer(cols = all_of(cazyme_cols),
+               names_to = "CAZyme_family",
+               values_to = "count") %>%
+  filter(count > 0) %>%
+  mutate(
+    CAZyme_class = case_when(
+      str_starts(CAZyme_family, "GH")  ~ "GH (Glycoside Hydrolase)",
+      str_starts(CAZyme_family, "GT")  ~ "GT (Glycosyl Transferase)",
+      str_starts(CAZyme_family, "PL")  ~ "PL (Polysaccharide Lyase)",
+      str_starts(CAZyme_family, "CE")  ~ "CE (Carbohydrate Esterase)",
+      str_starts(CAZyme_family, "AA")  ~ "AA (Auxiliary Activity)",
+      str_starts(CAZyme_family, "CBM") ~ "CBM (Carbohydrate-Binding Module)",
+      TRUE ~ "Other"
+    )
+  )
+
+class_summary <- df_long %>%
+  group_by(Genus_clean, CAZyme_class) %>%
+  summarise(total_genes = sum(count), .groups = "drop") %>%
+  group_by(Genus_clean) %>%
+  mutate(pct = total_genes / sum(total_genes) * 100) %>%
+  ungroup()
+
+class_colors <- c(
+  "GH (Glycoside Hydrolase)"          = "#A7C957",
+  "GT (Glycosyl Transferase)"         = "#907AD6",
+  "PL (Polysaccharide Lyase)"         = "#ff99b6",
+  "CE (Carbohydrate Esterase)"        = "#F39C12",
+  "AA (Auxiliary Activity)"           = "#00b0be",
+  "CBM (Carbohydrate-Binding Module)" = "#8fd7d7",
+  "Other"                             = "#BDC3C7"
+)
+
+ggplot(class_summary,
+       aes(x = reorder(Genus_clean, total_genes),
+           y = total_genes, fill = CAZyme_class)) +
+  geom_col(position = "stack", color = "grey30", linewidth = 0.2) +
+  scale_fill_manual(values = class_colors, name = "CAZyme class") +
+  coord_flip() +
+  labs(
+    title = "CAZyme class distribution by bacterial genus",
+    x = NULL,
+    y = "Total CAZyme genes (all MAGs combined)"
+  ) +
+  theme_classic(base_size = 12) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    axis.text.y = element_text(face = "italic"),
+    legend.position = "right",
+    legend.text = element_text(size = 9)
+  )
+```
+
+```{r cazyme-class-country, fig.height=6, fig.width=11}
+class_summary_country <- df_long %>%
+  filter(Genus_clean != "", !is.na(Genus_clean)) %>%
+  group_by(Genus_clean, CAZyme_class, country) %>%
+  summarise(total_genes = sum(count), .groups = "drop") %>%
+  group_by(Genus_clean, country) %>%
+  mutate(pct = total_genes / sum(total_genes) * 100) %>%
+  ungroup()
+
+class_order <- class_summary_country %>%
+  group_by(CAZyme_class) %>%
+  summarise(total = sum(total_genes), .groups = "drop") %>%
+  arrange(desc(total)) %>%
+  pull(CAZyme_class)
+
+class_summary_country <- class_summary_country %>%
+  mutate(CAZyme_class = factor(CAZyme_class, levels = class_order))
+
+ggplot(class_summary_country,
+       aes(x = reorder(Genus_clean, total_genes),
+           y = total_genes, fill = CAZyme_class)) +
+  geom_col(position = "stack", color = "grey30", linewidth = 0.2) +
+  scale_fill_manual(values = class_colors, name = "CAZyme class") +
+  coord_flip() +
+  facet_wrap(~ country, ncol = 2, scales = "free_y") +
+  labs(
+    title = "CAZyme class distribution by bacterial genus",
+    x = NULL,
+    y = "Total CAZyme genes (all MAGs combined)"
+  ) +
+  theme_classic(base_size = 12) +
+  theme(
+    plot.title       = element_text(face = "bold"),
+    axis.text.y      = element_text(face = "italic"),
+    legend.position  = "right",
+    legend.text      = element_text(size = 9),
+    strip.text       = element_text(face = "bold", size = 12),
+    strip.background = element_rect(fill = "grey95", color = "grey70")
+  )
+```
+
+---
+
+# 3. GH and PL Families — Division of Labor
+
+*Replicating Zheng et al. (2019) Fig. 1A approach for Bombus gut MAGs*
+
+## 3.1 Key GH families relevant to pollen polysaccharide digestion
+
+```{r gh-pl-exploration}
+df_long %>%
+  filter(str_starts(CAZyme_family, "GH") | str_starts(CAZyme_family, "PL")) %>%
+  group_by(CAZyme_family) %>%
+  summarise(
+    total_genes  = sum(count),
+    n_MAGs       = n_distinct(Genome),
+    mean_per_MAG = mean(count),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(total_genes)) %>%
+  print(n = 20)
+
+familias_zheng <- c("GH5_25", "GH5_18", "GH28", "GH42",
+                     "GH43_4", "GH43_11", "GH43_26", "GH43_31",
+                     "GH51_1", "GH78", "PL9_1")
+
+df_long %>%
+  filter(CAZyme_family %in% familias_zheng) %>%
+  group_by(CAZyme_family) %>%
+  summarise(
+    total_genes = sum(count),
+    n_MAGs      = n_distinct(Genome),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(total_genes))
+```
+
+```{r gh-pl-all-families}
+gh_pl_all <- df_long %>%
+  filter(
+    str_starts(CAZyme_family, "GH") | str_starts(CAZyme_family, "PL"),
+    Genus_clean != "", !is.na(Genus_clean)
+  ) %>%
+  group_by(CAZyme_family, Genus_clean) %>%
+  summarise(total_genes = sum(count), .groups = "drop")
+
+ggplot(gh_pl_all,
+       aes(x = reorder(CAZyme_family, -total_genes),
+           y = total_genes, fill = Genus_clean)) +
+  geom_col(position = "stack", color = "grey30", linewidth = 0.2) +
+  scale_fill_manual(values = genus_colors, name = "Genus") +
+  labs(
+    title = "Distribution of all GH and PL families across bee gut genera",
+    subtitle = "Total gene counts across all MAGs",
+    x = "CAZyme family",
+    y = "Gene numbers"
+  ) +
+  theme_classic(base_size = 12) +
+  theme(
+    plot.title      = element_text(face = "bold"),
+    axis.text.x     = element_text(angle = 45, hjust = 1, size = 8),
+    legend.text     = element_text(face = "italic"),
+    legend.position = "right"
+  )
+```
+
+```{r gh-pl-country-top20}
+gh_pl_country <- df_long %>%
+  filter(
+    str_starts(CAZyme_family, "GH") | str_starts(CAZyme_family, "PL"),
+    Genus_clean != "", !is.na(Genus_clean)
+  ) %>%
+  group_by(CAZyme_family, Genus_clean, country) %>%
+  summarise(total_genes = sum(count), .groups = "drop")
+
+top20_families <- gh_pl_country %>%
+  group_by(CAZyme_family) %>%
+  summarise(total = sum(total_genes)) %>%
+  arrange(desc(total)) %>%
+  slice_head(n = 20) %>%
+  pull(CAZyme_family)
+
+gh_pl_top20_country <- gh_pl_country %>%
+  filter(CAZyme_family %in% top20_families)
+
+ggplot(gh_pl_top20_country,
+       aes(x = reorder(CAZyme_family, -total_genes),
+           y = total_genes, fill = Genus_clean)) +
+  geom_col(position = "stack", color = "grey30", linewidth = 0.2) +
+  scale_fill_manual(values = genus_colors, name = "Genus") +
+  facet_wrap(~ country, ncol = 2, scales = "free_y") +
+  labs(
+    title = "Top 20 GH and PL families across bee gut genera",
+    subtitle = "Total gene counts by country",
+    x = "CAZyme family",
+    y = "Gene numbers"
+  ) +
+  theme_classic(base_size = 12) +
+  theme(
+    plot.title       = element_text(face = "bold"),
+    axis.text.x      = element_text(angle = 45, hjust = 1, size = 8),
+    legend.text      = element_text(face = "italic"),
+    legend.position  = "right",
+    strip.text       = element_text(face = "bold", size = 12),
+    strip.background = element_rect(fill = "grey95", color = "grey70")
+  )
+```
+
+```{r gh-pl-filter-nutrition}
+gh_peptidoglycan <- c("GH23", "GH24", "GH25", "GH73", "GH102", "GH103", "GH104")
+gh_internal <- c("GH13_29", "GH13_30", "GH13_9", "GH77")
+
+gh_pl_nutrition <- df_long %>%
+  filter(
+    str_starts(CAZyme_family, "GH") | str_starts(CAZyme_family, "PL"),
+    Genus_clean != "", !is.na(Genus_clean)
+  ) %>%
+  mutate(base_family = str_extract(CAZyme_family, "^GH[0-9]+")) %>%
+  filter(
+    !base_family %in% gh_peptidoglycan,
+    !base_family %in% gh_internal
+  ) %>%
+  group_by(CAZyme_family) %>%
+  summarise(total = sum(count)) %>%
+  arrange(desc(total))
+
+print(gh_pl_nutrition, n = 30)
+
+df_long %>%
+  filter(CAZyme_family %in% c("GH1", "GH3", "GH32", "GH186", "GH4")) %>%
+  group_by(CAZyme_family, Genus_clean) %>%
+  summarise(total = sum(count), .groups = "drop") %>%
+  arrange(CAZyme_family, desc(total)) %>%
+  print(n = 30)
+```
+
+```{r gh-heatmap-key, fig.height=7, fig.width=12}
+key_families <- c(
+  # Hemicellulose (Bifidobacterium-associated)
+  "GH5_25", "GH5_18",
+  "GH43_4", "GH43_11", "GH43_26", "GH43_31",
+  "GH42",
+  "GH51_1",
+  "GH78",
+  # Pectin (Gilliamella-associated)
+  "GH27", "GH28",
+  "PL9_1",
+  # General carbohydrate metabolism
+  "GH1", "GH3",
+  "GH13_29", "GH13_9",
+  "GH23",
+  "GH32"
+)
+
+key_families_present <- key_families[key_families %in% cazyme_cols]
+
+heatmap_df <- df %>%
+  select(Genome, Genus_clean, all_of(key_families_present)) %>%
+  arrange(Genus_clean)
+
+row_annot <- data.frame(
+  Genus   = heatmap_df$Genus_clean,
+  Country = df$country[match(heatmap_df$Genome, df$Genome)],
+  row.names = heatmap_df$Genome
+)
+
+mat <- heatmap_df %>%
+  select(-Genus_clean) %>%
+  column_to_rownames("Genome") %>%
+  as.matrix()
+
+rownames(mat) <- paste0(row_annot$Genus, "_",
+                         sub(".*__", "", rownames(mat)))
+
+col_annot <- data.frame(
+  Class = case_when(
+    str_starts(colnames(mat), "GH") ~ "GH",
+    str_starts(colnames(mat), "PL") ~ "PL",
+    str_starts(colnames(mat), "CE") ~ "CE",
+    TRUE ~ "Other"
+  ),
+  row.names = colnames(mat)
+)
+
+annot_colors <- list(
+  Genus   = genus_colors[unique(row_annot$Genus)],
+  Country = country_colors,
+  Class   = c("GH" = "#E74C3C", "PL" = "#2ECC71", "CE" = "#F39C12")
+)
+
+pheatmap(
+  mat,
+  annotation_row    = row_annot,
+  annotation_col    = col_annot,
+  annotation_colors = annot_colors,
+  color = colorRampPalette(c("white", "#FEE8C8", "#E34A33", "#800026"))(50),
+  cluster_rows      = TRUE,
+  cluster_cols      = FALSE,
+  show_rownames     = TRUE,
+  fontsize_row      = 8,
+  fontsize_col      = 9,
+  main = "Key CAZyme families for polysaccharide digestion\n(gene count per MAG)",
+  angle_col         = 45,
+  border_color      = "grey80"
+)
+```
+
+## 3.2 GH and PL profiles — bubble plot (Zheng et al. style)
+
+```{r bubble-plot-genus, fig.height=6, fig.width=11}
+gh_pl_cols <- cazyme_cols[str_starts(cazyme_cols, "GH") | str_starts(cazyme_cols, "PL")]
+
+bubble_data <- df %>%
+  select(Genus_clean, all_of(gh_pl_cols)) %>%
+  group_by(Genus_clean) %>%
+  summarise(across(everything(),
+                   list(mean = mean, cv = ~sd(.)/mean(.))),
+            .groups = "drop") %>%
+  pivot_longer(-Genus_clean,
+               names_to = c("family", ".value"),
+               names_pattern = "(.+)_(mean|cv)") %>%
+  filter(mean > 0) %>%
+  mutate(CAZyme_class = ifelse(str_starts(family, "PL"), "PL", "GH"))
+
+informative_families <- c(
+  "GH43_4", "GH43_11", "GH43_26", "GH43_31",
+  "GH42", "GH51_1", "GH78",
+  "GH5_18", "GH5_25",
+  "GH28", "PL9_1",
+  "GH1", "GH3", "GH32", "GH186", "GH25", "GH30"
+)
+
+genus_order <- c(
+  "Snodgrassella", "Gilliamella", "Schmidhempelia",
+  "Bifidobacterium", "Bombiscardovia",
+  "Apibacter",
+  "Apilactobacillus", "Lactobacillus",
+  "Fructobacillus", "Arsenophonus"
+)
+
+bubble_plot_df <- bubble_data %>%
+  filter(family %in% informative_families,
+         Genus_clean != "Enterobacter",
+         Genus_clean %in% genus_order) %>%
+  mutate(Genus_clean = factor(Genus_clean, levels = rev(genus_order)))
+
+ggplot(bubble_plot_df,
+       aes(x = family, y = Genus_clean,
+           size = mean, color = cv)) +
+  geom_point(alpha = 0.85) +
+  scale_size_continuous(range = c(1, 12), name = "Avg. genes\nper MAG") +
+  scale_color_gradientn(
+    colors = c("#884ab2", "#d1105a", "#ff930a"),
+    na.value = "grey80",
+    name = "Coeff. of\nvariation",
+    limits = c(0, 2)
+  ) +
+  facet_grid(. ~ CAZyme_class, scales = "free_x", space = "free_x") +
+  labs(
+    title = "Glycoside Hydrolase gene families in Bombus gut MAGs",
+    subtitle = "Bubble size = mean gene count per MAG | Color = variability among MAGs | Grey = single MAG",
+    x = "CAZyme family",
+    y = NULL
+  ) +
+  theme_classic(base_size = 11) +
+  theme(
+    axis.text.x      = element_text(angle = 45, hjust = 1, size = 9),
+    axis.text.y      = element_text(face = "italic", size = 10),
+    plot.title       = element_text(face = "bold"),
+    strip.background = element_rect(fill = "grey90"),
+    panel.spacing    = unit(0.5, "lines")
+  )
+```
+
+```{r bubble-plot-country, fig.height=6, fig.width=11}
+bubble_data_country <- df %>%
+  select(Genus_clean, country, all_of(gh_pl_cols)) %>%
+  group_by(Genus_clean, country) %>%
+  summarise(across(everything(),
+                   list(mean = mean, cv = ~sd(.)/mean(.))),
+            .groups = "drop") %>%
+  pivot_longer(-c(Genus_clean, country),
+               names_to = c("family", ".value"),
+               names_pattern = "(.+)_(mean|cv)") %>%
+  filter(mean > 0) %>%
+  mutate(CAZyme_class = ifelse(str_starts(family, "PL"), "PL", "GH"))
+
+bubble_plot_country_df <- bubble_data_country %>%
+  filter(family %in% informative_families,
+         Genus_clean != "Enterobacter",
+         Genus_clean %in% genus_order) %>%
+  mutate(
+    Genus_clean = factor(Genus_clean, levels = rev(genus_order)),
+    country     = factor(country, levels = c("US", "Colombia", "Unknown"))
+  )
+
+ggplot(bubble_plot_country_df,
+       aes(x = family, y = Genus_clean,
+           size = mean, color = cv)) +
+  geom_point(alpha = 0.85) +
+  scale_size_continuous(range = c(1, 12), name = "Avg. genes\nper MAG") +
+  scale_color_gradientn(
+    colors = c("#884ab2", "#d1105a", "#ff930a"),
+    na.value = "grey80",
+    name = "Coeff. of\nvariation",
+    limits = c(0, 2)
+  ) +
+  facet_grid(CAZyme_class ~ country, scales = "free_x", space = "free_x") +
+  labs(
+    title = "GH gene families in Bombus gut MAGs",
+    subtitle = "Bubble size = mean gene count per MAG | Color = variability among MAGs | Grey = single MAG",
+    x = "CAZyme family",
+    y = NULL
+  ) +
+  theme_classic(base_size = 11) +
+  theme(
+    axis.text.x      = element_text(angle = 45, hjust = 1, size = 9),
+    axis.text.y      = element_text(face = "italic", size = 10),
+    plot.title       = element_text(face = "bold"),
+    strip.background = element_rect(fill = "grey90"),
+    strip.text       = element_text(face = "bold"),
+    panel.spacing    = unit(0.8, "lines")
+  )
+```
+
+---
+
+# 4. US vs Colombia Comparison
+
+## 4.1 Total CAZyme content by country and genus
+
+```{r country-comparison, fig.height=6}
+df_country <- df %>%
+  filter(country %in% c("US", "Colombia")) %>%
+  select(Genome, Genus_clean, country, total_cazymes)
+
+ggplot(df_country, aes(x = Genus_clean, y = total_cazymes,
+                        fill = country, color = country)) +
+  geom_boxplot(alpha = 0.6, outlier.shape = NA,
+               position = position_dodge(0.8)) +
+  geom_jitter(position = position_jitterdodge(jitter.width = 0.15,
+                                               dodge.width = 0.8),
+              size = 2, alpha = 0.8) +
+  scale_fill_manual(values = country_colors) +
+  scale_color_manual(values = country_colors) +
+  labs(
+    title = "Total CAZyme gene content: US vs Colombia",
+    subtitle = "Each point = one MAG",
+    x = NULL,
+    y = "Total CAZyme genes",
+    fill = "Country",
+    color = "Country"
+  ) +
+  theme_classic(base_size = 12) +
+  theme(
+    axis.text.x = element_text(angle = 35, hjust = 1, face = "italic"),
+    plot.title = element_text(face = "bold"),
+    legend.position = "top"
+  )
+```
+
+## 4.2 GH vs PL gene content by country
+
+```{r gh-pl-country-boxplot, fig.height=5}
+df_ghpl <- df %>%
+  filter(country %in% c("US", "Colombia")) %>%
+  mutate(
+    total_GH = rowSums(select(., starts_with("GH")), na.rm = TRUE),
+    total_PL = rowSums(select(., starts_with("PL")), na.rm = TRUE),
+    total_GT = rowSums(select(., starts_with("GT")), na.rm = TRUE)
+  ) %>%
+  select(Genome, Genus_clean, country, total_GH, total_PL, total_GT) %>%
+  pivot_longer(cols = c(total_GH, total_PL, total_GT),
+               names_to = "class", values_to = "count") %>%
+  mutate(class = recode(class,
+    "total_GH" = "GH (Glycoside Hydrolase)",
+    "total_PL" = "PL (Polysaccharide Lyase)",
+    "total_GT" = "GT (Glycosyl Transferase)"
+  ))
+
+ggplot(df_ghpl, aes(x = country, y = count, fill = country)) +
+  geom_boxplot(alpha = 0.6, outlier.shape = NA) +
+  geom_jitter(width = 0.15, size = 2, alpha = 0.7, aes(color = Genus_clean)) +
+  scale_fill_manual(values = country_colors, guide = "none") +
+  scale_color_manual(values = genus_colors, name = "Genus") +
+  facet_wrap(~ class, scales = "free_y") +
+  labs(
+    title = "CAZyme class comparison between populations",
+    x = NULL,
+    y = "Gene count per MAG"
+  ) +
+  theme_classic(base_size = 11) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    strip.background = element_rect(fill = "grey90"),
+    legend.text = element_text(face = "italic")
+  )
+```
+
+## 4.3 Key polysaccharide-degrading families: US vs Colombia
+
+```{r key-families-country, fig.height=6, fig.width=10}
+pollen_families <- key_families_present
+
+df_pollen <- df %>%
+  filter(country %in% c("US", "Colombia")) %>%
+  select(Genus_clean, country, all_of(pollen_families)) %>%
+  pivot_longer(cols = all_of(pollen_families),
+               names_to = "family", values_to = "count")
+
+pollen_summary <- df_pollen %>%
+  group_by(Genus_clean, country, family) %>%
+  summarise(mean_count = mean(count), .groups = "drop")
+
+ggplot(pollen_summary, aes(x = family, y = mean_count, fill = country)) +
+  geom_col(position = "dodge", color = "grey30", linewidth = 0.2) +
+  scale_fill_manual(values = country_colors) +
+  facet_wrap(~ Genus_clean, scales = "free_y", ncol = 2) +
+  labs(
+    title = "Pollen polysaccharide-degrading CAZyme families",
+    subtitle = "Mean gene count per MAG by genus and country of origin",
+    x = "CAZyme family",
+    y = "Mean gene count",
+    fill = "Country"
+  ) +
+  theme_classic(base_size = 10) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 7),
+    plot.title = element_text(face = "bold"),
+    strip.text = element_text(face = "italic"),
+    strip.background = element_rect(fill = "grey90"),
+    legend.position = "top"
+  )
+```
+
+---
+
+# 5. Full CAZyme Heatmap (all MAGs)
+
+```{r full-heatmap, fig.height=14, fig.width=14}
+mat_full <- df %>%
+  select(Genome, Genus_clean, all_of(cazyme_cols)) %>%
+  column_to_rownames("Genome")
+
+keep_cols <- cazyme_cols[colSums(mat_full[, cazyme_cols] > 0) >= 2]
+mat_full <- mat_full[, keep_cols] %>% as.matrix()
+
+row_annot_full <- df %>%
+  select(Genome, Genus_clean, country) %>%
+  column_to_rownames("Genome") %>%
+  rename(Genus = Genus_clean, Country = country)
+row_annot_full <- row_annot_full[rownames(mat_full), ]
+
+col_annot_full <- data.frame(
+  Class = case_when(
+    str_starts(colnames(mat_full), "GH")  ~ "GH",
+    str_starts(colnames(mat_full), "GT")  ~ "GT",
+    str_starts(colnames(mat_full), "PL")  ~ "PL",
+    str_starts(colnames(mat_full), "CE")  ~ "CE",
+    str_starts(colnames(mat_full), "AA")  ~ "AA",
+    str_starts(colnames(mat_full), "CBM") ~ "CBM",
+    TRUE ~ "Other"
+  ),
+  row.names = colnames(mat_full)
+)
+
+annot_colors_full <- list(
+  Genus   = genus_colors[names(genus_colors) %in% unique(row_annot_full$Genus)],
+  Country = country_colors,
+  Class   = c("GH" = "#E74C3C", "GT" = "#3498DB", "PL" = "#2ECC71",
+              "CE" = "#F39C12", "AA" = "#9B59B6", "CBM" = "#1ABC9C")
+)
+
+rownames(mat_full) <- paste0(row_annot_full$Genus, "\n",
+                              sub(".*__", "", rownames(mat_full)))
+
+pheatmap(
+  mat_full,
+  annotation_row    = row_annot_full,
+  annotation_col    = col_annot_full,
+  annotation_colors = annot_colors_full,
+  color = colorRampPalette(c("white", "#FFF7BC", "#FEC44F", "#D95F0E", "#8C2D04"))(60),
+  cluster_rows      = TRUE,
+  cluster_cols      = TRUE,
+  show_rownames     = TRUE,
+  fontsize_row      = 7,
+  fontsize_col      = 7,
+  main = "Complete CAZyme profile — all Bombus gut MAGs\n(families present in ≥2 MAGs, #ofTools ≥ 2)",
+  angle_col         = 45,
+  border_color      = NA
+)
+```
+
+---
+
+# 6. Ordination — CAZyme Functional Diversity
+
+```{r pcoa, fig.height=6}
+mat_ord <- df %>%
+  select(all_of(cazyme_cols)) %>%
+  as.matrix()
+rownames(mat_ord) <- df$Genome
+
+mat_ord <- mat_ord[rowSums(mat_ord) > 0, ]
+
+dist_bc <- vegdist(mat_ord, method = "bray")
+pcoa_res <- cmdscale(dist_bc, k = 2, eig = TRUE)
+
+eig_pct <- round(pcoa_res$eig[1:2] / sum(pcoa_res$eig[pcoa_res$eig > 0]) * 100, 1)
+
+pcoa_df <- data.frame(
+  Genome = rownames(mat_ord),
+  PC1    = pcoa_res$points[, 1],
+  PC2    = pcoa_res$points[, 2]
+) %>%
+  left_join(df %>% select(Genome, Genus_clean, country, species_id),
+            by = "Genome")
+
+ggplot(pcoa_df, aes(x = PC1, y = PC2,
+                     color = Genus_clean, shape = country)) +
+  geom_point(size = 4, alpha = 0.85) +
+  geom_text_repel(aes(label = Genus_clean),
+                   size = 2.5, max.overlaps = 8,
+                   fontface = "italic") +
+  scale_color_manual(values = genus_colors, guide = "none") +
+  scale_shape_manual(values = c("US" = 16, "Colombia" = 17, "Unknown" = 15),
+                     name = "Country") +
+  labs(
+    title = "PCoA of CAZyme functional profiles (Bray-Curtis)",
+    x = paste0("PC1 (", eig_pct[1], "%)"),
+    y = paste0("PC2 (", eig_pct[2], "%)")
+  ) +
+  theme_classic(base_size = 12) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    legend.position = "right"
+  ) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey70") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey70")
+```
+
+```{r pcoa-ellipses}
+ggplot(pcoa_df, aes(x = PC1, y = PC2, color = Genus_clean)) +
+  stat_ellipse(aes(group = Genus_clean),
+               level = 0.75, linewidth = 0.5, alpha = 0.4) +
+  geom_point(aes(shape = country), size = 4, alpha = 0.85) +
+  scale_color_manual(values = genus_colors, name = "Genus") +
+  scale_shape_manual(values = c("US" = 16, "Colombia" = 17, "Unknown" = 15),
+                     name = "Country") +
+  labs(
+    title = "PCoA of CAZyme functional profiles (Bray-Curtis)",
+    x = paste0("PC1 (", eig_pct[1], "%)"),
+    y = paste0("PC2 (", eig_pct[2], "%)")
+  ) +
+  theme_classic(base_size = 12) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    legend.position = "right"
+  ) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey70") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey70")
+```
+
+---
+
+# 7. Summary Composition Figures
+
+```{r panel-B, fig.height=4, fig.width=5}
+cazyme_class_colors <- c(
+  "GH"  = "#A7C957",
+  "GT"  = "#907AD6",
+  "PL"  = "#ff99b6",
+  "CE"  = "#F39C12",
+  "AA"  = "#00b0be",
+  "CBM" = "#8fd7d7"
+)
+
+panel_B <- df %>%
+  select(Genome, starts_with("AA"), starts_with("CBM"),
+         starts_with("CE"), starts_with("GH"),
+         starts_with("GT"), starts_with("PL")) %>%
+  pivot_longer(-Genome, names_to = "family", values_to = "count") %>%
+  mutate(CAZyme_class = case_when(
+    str_starts(family, "AA")  ~ "AA",
+    str_starts(family, "CBM") ~ "CBM",
+    str_starts(family, "CE")  ~ "CE",
+    str_starts(family, "GH")  ~ "GH",
+    str_starts(family, "GT")  ~ "GT",
+    str_starts(family, "PL")  ~ "PL"
+  )) %>%
+  group_by(CAZyme_class) %>%
+  summarise(total = sum(count), .groups = "drop") %>%
+  mutate(CAZyme_class = factor(CAZyme_class, levels = names(cazyme_class_colors)))
+
+ggplot(panel_B, aes(x = CAZyme_class, y = total, fill = CAZyme_class)) +
+  geom_col(width = 0.7, show.legend = FALSE) +
+  scale_fill_manual(values = cazyme_class_colors) +
+  scale_y_continuous(labels = scales::comma) +
+  labs(x = NULL, y = "Number of CAZy genes") +
+  theme_classic(base_size = 11) +
+  theme(axis.text.x = element_text(size = 10, face = "bold"))
+```
+
+```{r panel-C-genus, fig.height=5, fig.width=10}
+panel_C <- df %>%
+  filter(!is.na(Genus_clean), Genus_clean != "") %>%
+  select(Genome, Genus_clean,
+         starts_with("AA"), starts_with("CBM"),
+         starts_with("CE"), starts_with("GH"),
+         starts_with("GT"), starts_with("PL")) %>%
+  pivot_longer(-c(Genome, Genus_clean),
+               names_to = "family",
+               values_to = "count") %>%
+  mutate(CAZyme_class = case_when(
+    str_starts(family, "AA")  ~ "AA",
+    str_starts(family, "CBM") ~ "CBM",
+    str_starts(family, "CE")  ~ "CE",
+    str_starts(family, "GH")  ~ "GH",
+    str_starts(family, "GT")  ~ "GT",
+    str_starts(family, "PL")  ~ "PL"
+  )) %>%
+  group_by(Genus_clean, CAZyme_class) %>%
+  summarise(total = sum(count), .groups = "drop") %>%
+  mutate(
+    CAZyme_class = factor(CAZyme_class, levels = names(cazyme_class_colors)),
+    Genus_clean  = factor(Genus_clean, levels = c(
+      "Snodgrassella", "Gilliamella", "Schmidhempelia",
+      "Bifidobacterium", "Bombiscardovia", "Apibacter",
+      "Apilactobacillus", "Lactobacillus",
+      "Fructobacillus", "Arsenophonus", "Enterobacter"
+    ))
+  )
+
+ggplot(panel_C, aes(x = Genus_clean, y = total, fill = CAZyme_class)) +
+  geom_col(width = 0.7) +
+  scale_fill_manual(values = cazyme_class_colors, name = "CAZyme class") +
+  scale_y_continuous(labels = scales::comma) +
+  labs(x = NULL, y = "Number of CAZy genes") +
+  theme_classic(base_size = 11) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1,
+                                size = 10, face = "italic"),
+    legend.position = "right"
+  )
+```
+
+```{r panel-C-country, fig.height=6, fig.width=14}
+panel_C_country <- df %>%
+  filter(!is.na(Genus_clean), Genus_clean != "") %>%
+  select(Genome, Genus_clean, country,
+         starts_with("AA"), starts_with("CBM"),
+         starts_with("CE"), starts_with("GH"),
+         starts_with("GT"), starts_with("PL")) %>%
+  pivot_longer(-c(Genome, Genus_clean, country),
+               names_to  = "family",
+               values_to = "count") %>%
+  mutate(CAZyme_class = case_when(
+    str_starts(family, "AA")  ~ "AA",
+    str_starts(family, "CBM") ~ "CBM",
+    str_starts(family, "CE")  ~ "CE",
+    str_starts(family, "GH")  ~ "GH",
+    str_starts(family, "GT")  ~ "GT",
+    str_starts(family, "PL")  ~ "PL"
+  )) %>%
+  group_by(Genus_clean, country, CAZyme_class) %>%
+  summarise(total = sum(count), .groups = "drop") %>%
+  mutate(
+    CAZyme_class = factor(CAZyme_class, levels = names(cazyme_class_colors)),
+    Genus_clean  = factor(Genus_clean, levels = c(
+      "Snodgrassella", "Gilliamella", "Schmidhempelia",
+      "Bifidobacterium", "Bombiscardovia", "Apibacter",
+      "Apilactobacillus", "Lactobacillus",
+      "Fructobacillus", "Arsenophonus", "Enterobacter"
+    )),
+    country = factor(country, levels = c("US", "Colombia", "Unknown"))
+  )
+
+ggplot(panel_C_country, aes(x = Genus_clean, y = total, fill = CAZyme_class)) +
+  geom_col(width = 0.7) +
+  scale_fill_manual(values = cazyme_class_colors, name = "CAZyme class") +
+  scale_y_continuous(labels = scales::comma) +
+  facet_wrap(~ country, nrow = 1) +
+  labs(x = NULL, y = "Number of CAZy genes") +
+  theme_classic(base_size = 11) +
+  theme(
+    axis.text.x      = element_text(angle = 45, hjust = 1,
+                                     size = 9, face = "italic"),
+    strip.background = element_rect(fill = "grey90"),
+    strip.text       = element_text(face = "bold", size = 11),
+    legend.position  = "right"
+  )
+```
+
+---
+
+# 8. Analysis by *Bombus* Subgenus
+
+```{r subgenus-explore}
+df %>%
+  count(subgenus, Genus_clean) %>%
+  arrange(desc(n))
+
+df %>%
+  filter(!is.na(subgenus), subgenus != "") %>%
+  select(Genome, subgenus, all_of(cazyme_cols)) %>%
+  pivot_longer(-c(Genome, subgenus),
+               names_to = "family",
+               values_to = "count") %>%
+  filter(count > 0) %>%
+  distinct(subgenus, family) %>%
+  count(subgenus, name = "n_families") %>%
+  arrange(desc(n_families))
+```
+
+```{r upset-subgenus, fig.height=5, fig.width=8}
+upset_data <- df %>%
+  filter(!is.na(subgenus), subgenus != "") %>%
+  select(Genome, subgenus, all_of(cazyme_cols)) %>%
+  pivot_longer(-c(Genome, subgenus),
+               names_to  = "family",
+               values_to = "count") %>%
+  filter(count > 0) %>%
+  distinct(subgenus, family) %>%
+  mutate(present = 1) %>%
+  pivot_wider(names_from  = subgenus,
+              values_from = present,
+              values_fill = 0) %>%
+  column_to_rownames("family")
+
+upset_matrix <- as.data.frame(upset_data)
+upset_matrix[] <- lapply(upset_matrix, as.integer)
+subgenus_names <- colnames(upset_matrix)
+
+upset(
+  upset_matrix,
+  sets           = subgenus_names,
+  order.by       = "freq",
+  mb.ratio       = c(0.6, 0.4),
+  point.size     = 3,
+  line.size      = 0.8,
+  text.scale     = c(1.2, 1, 1, 1, 1.2, 1),
+  main.bar.color = "#455A64",
+  matrix.color   = "#455A64",
+  sets.bar.color = c("#E74C3C", "#E67E22", "#2ECC71",
+                     "#3498DB", "#9B59B6", "#1ABC9C")
+)
+```
+
+```{r heatmap-subgenus-presence, fig.height=5, fig.width=10}
+presence_data <- df %>%
+  filter(!is.na(subgenus), subgenus != "") %>%
+  select(Genome, subgenus, all_of(cazyme_cols)) %>%
+  pivot_longer(-c(Genome, subgenus),
+               names_to  = "family",
+               values_to = "count") %>%
+  filter(count > 0) %>%
+  distinct(subgenus, family) %>%
+  mutate(present = 1) %>%
+  pivot_wider(names_from  = family,
+              values_from = present,
+              values_fill = 0)
+
+mat_A <- presence_data %>%
+  column_to_rownames("subgenus") %>%
+  as.matrix()
+
+col_order <- colSums(mat_A) %>% sort(decreasing = TRUE) %>% names()
+mat_A <- mat_A[, col_order]
+row_order <- rowSums(mat_A) %>% sort(decreasing = TRUE) %>% names()
+mat_A <- mat_A[row_order, ]
+
+col_annot_A <- data.frame(
+  Class = case_when(
+    str_starts(colnames(mat_A), "GH")  ~ "GH",
+    str_starts(colnames(mat_A), "GT")  ~ "GT",
+    str_starts(colnames(mat_A), "PL")  ~ "PL",
+    str_starts(colnames(mat_A), "CE")  ~ "CE",
+    str_starts(colnames(mat_A), "AA")  ~ "AA",
+    str_starts(colnames(mat_A), "CBM") ~ "CBM",
+    TRUE ~ "Other"
+  ),
+  row.names = colnames(mat_A)
+)
+
+annot_colors_A <- list(
+  Class = c(
+    "GH"  = "#A7C957",
+    "GT"  = "#907AD6",
+    "PL"  = "#ff99b6",
+    "CE"  = "#F39C12",
+    "AA"  = "#00b0be",
+    "CBM" = "#8fd7d7"
+  )
+)
+
+pheatmap(
+  mat_A,
+  color             = c("white", "#2C3E50"),
+  annotation_col    = col_annot_A,
+  annotation_colors = annot_colors_A,
+  cluster_rows      = FALSE,
+  cluster_cols      = FALSE,
+  show_colnames     = TRUE,
+  fontsize_row      = 11,
+  fontsize_col      = 7,
+  angle_col         = 45,
+  border_color      = "grey90",
+  legend            = FALSE,
+  main              = "CAZyme family presence/absence by Bombus subgenus"
+)
+```
+
+```{r tile-subgenus-presence, fig.height=6, fig.width=14}
+presence_long <- df %>%
+  filter(!is.na(subgenus), subgenus != "") %>%
+  select(Genome, subgenus, all_of(cazyme_cols)) %>%
+  pivot_longer(-c(Genome, subgenus),
+               names_to  = "family",
+               values_to = "count") %>%
+  distinct(subgenus, family, .keep_all = TRUE) %>%
+  group_by(subgenus, family) %>%
+  summarise(present = as.integer(any(count > 0)), .groups = "drop") %>%
+  mutate(
+    CAZyme_class = case_when(
+      str_starts(family, "GH")  ~ "GH",
+      str_starts(family, "GT")  ~ "GT",
+      str_starts(family, "PL")  ~ "PL",
+      str_starts(family, "CE")  ~ "CE",
+      str_starts(family, "AA")  ~ "AA",
+      str_starts(family, "CBM") ~ "CBM"
+    ),
+    subgenus = factor(subgenus, levels = c(
+      "Fervidobombus", "Pyrobombus", "Cullumanobombus",
+      "Separatobombus", "Bombias", "Psithyrus"
+    ))
+  )
+
+ggplot(presence_long, aes(x = family, y = subgenus, fill = factor(present))) +
+  geom_tile(color = "grey90", linewidth = 0.3) +
+  scale_fill_manual(
+    values = c("0" = "white", "1" = "#2C3E50"),
+    guide  = "none"
+  ) +
+  facet_grid(. ~ CAZyme_class, scales = "free_x", space = "free_x") +
+  labs(
+    title = "CAZyme family presence/absence by Bombus subgenus",
+    x = NULL, y = NULL
+  ) +
+  theme_classic(base_size = 11) +
+  theme(
+    axis.text.x      = element_text(angle = 90, hjust = 1,
+                                     vjust = 0.5, size = 6),
+    axis.text.y      = element_text(face = "italic", size = 10),
+    strip.background = element_rect(fill = "grey90"),
+    strip.text       = element_text(face = "bold", size = 10),
+    panel.spacing    = unit(0.3, "lines")
+  )
+```
+
+```{r donut-subgenus, fig.height=6, fig.width=12}
+pie_data <- df %>%
+  filter(!is.na(subgenus), subgenus != "") %>%
+  select(Genome, subgenus, all_of(cazyme_cols)) %>%
+  pivot_longer(-c(Genome, subgenus),
+               names_to  = "family",
+               values_to = "count") %>%
+  mutate(CAZyme_class = case_when(
+    str_starts(family, "GH")  ~ "GH",
+    str_starts(family, "GT")  ~ "GT",
+    str_starts(family, "PL")  ~ "PL",
+    str_starts(family, "CE")  ~ "CE",
+    str_starts(family, "AA")  ~ "AA",
+    str_starts(family, "CBM") ~ "CBM"
+  )) %>%
+  group_by(subgenus, CAZyme_class) %>%
+  summarise(total = sum(count), .groups = "drop") %>%
+  group_by(subgenus) %>%
+  mutate(
+    prop        = total / sum(total),
+    grand_total = sum(total)
+  ) %>%
+  ungroup() %>%
+  mutate(
+    subgenus = factor(subgenus, levels = c(
+      "Fervidobombus", "Pyrobombus", "Cullumanobombus",
+      "Separatobombus", "Bombias", "Psithyrus"
+    )),
+    CAZyme_class = factor(CAZyme_class, levels = names(cazyme_class_colors))
+  )
+
+totals <- pie_data %>%
+  distinct(subgenus, grand_total)
+
+ggplot(pie_data, aes(x = 2, y = prop, fill = CAZyme_class)) +
+  geom_col(width = 1, color = "white", linewidth = 0.5) +
+  geom_text(
+    data        = totals,
+    aes(x = 0, y = 0, label = grand_total),
+    inherit.aes = FALSE,
+    size        = 4,
+    fontface    = "bold"
+  ) +
+  coord_polar(theta = "y") +
+  xlim(0.5, 2.5) +
+  scale_fill_manual(values = cazyme_class_colors, name = "CAZyme class") +
+  facet_wrap(~ subgenus, nrow = 1) +
+  labs(
+    title = "CAZyme class composition by Bombus subgenus",
+    x = NULL, y = NULL
+  ) +
+  theme_void(base_size = 11) +
+  theme(
+    strip.text      = element_text(face = "italic", size = 10,
+                                    margin = margin(b = 5)),
+    plot.title      = element_text(face = "bold", hjust = 0.5,
+                                    margin = margin(b = 10)),
+    legend.position = "right"
+  )
+```
+
+---
+
+# 9. CAZyme Richness by *Bombus* Host Species
+
+```{r richness-setup}
+# CAZyme richness = number of unique families present (count > 0) per MAG
+df <- df %>%
+  mutate(cazyme_richness = rowSums(select(., all_of(cazyme_cols)) > 0, na.rm = TRUE))
+
+# Bee subgenus color palette
+subgenus_colors <- c(
+  "Fervidobombus"   = "#E74C3C",
+  "Pyrobombus"      = "#E67E22",
+  "Cullumanobombus" = "#9B59B6",
+  "Separatobombus"  = "#3498DB",
+  "Bombias"         = "#2ECC71",
+  "Psithyrus"       = "#95A5A6"
+)
+```
+
+## 9.1 CAZyme richness per MAG by host bee species
+
+```{r richness-per-mag, fig.height=7, fig.width=10}
+df_richness <- df %>%
+  filter(!is.na(species_id), species_id != "")
+
+species_order_mag <- df_richness %>%
+  group_by(species_id) %>%
+  summarise(med = median(cazyme_richness), .groups = "drop") %>%
+  arrange(med) %>%
+  pull(species_id)
+
+df_richness <- df_richness %>%
+  mutate(species_id = factor(species_id, levels = species_order_mag))
+
+ggplot(df_richness, aes(x = species_id, y = cazyme_richness)) +
+  geom_boxplot(aes(fill = subgenus), alpha = 0.65, outlier.shape = NA,
+               linewidth = 0.4) +
+  geom_jitter(aes(color = Genus_clean), width = 0.2, size = 2.5,
+              alpha = 0.85) +
+  coord_flip() +
+  scale_fill_manual(values  = subgenus_colors, name = "Host subgenus",
+                    na.value = "grey80") +
+  scale_color_manual(values = genus_colors, name = "Bacterial genus") +
+  labs(
+    title    = "CAZyme family richness per MAG by host bumblebee species",
+    subtitle = "Each point = one MAG; color = bacterial genus",
+    x        = expression(italic("Bombus") ~ "species"),
+    y        = "CAZyme family richness (# unique families)"
+  ) +
+  theme_classic(base_size = 12) +
+  theme(
+    axis.text.y  = element_text(face = "italic"),
+    plot.title   = element_text(face = "bold"),
+    legend.text  = element_text(face = "italic", size = 9)
+  )
+```
+
+## 9.2 Community-level CAZyme richness per bee sample
+
+```{r community-richness-calc}
+# Community richness: all unique CAZyme families present across any MAG
+# recovered from the same bee individual
+mags_per_sample <- df %>%
+  filter(!is.na(species_id), species_id != "") %>%
+  count(sample_id, name = "n_MAGs")
+
+sample_richness <- df %>%
+  filter(!is.na(species_id), species_id != "") %>%
+  select(sample_id, species_id, subgenus, country, all_of(cazyme_cols)) %>%
+  pivot_longer(cols = all_of(cazyme_cols),
+               names_to = "family", values_to = "count") %>%
+  group_by(sample_id, species_id, subgenus, country, family) %>%
+  summarise(present = any(count > 0), .groups = "drop") %>%
+  group_by(sample_id, species_id, subgenus, country) %>%
+  summarise(community_richness = sum(present), .groups = "drop") %>%
+  left_join(mags_per_sample, by = "sample_id")
+
+# Summary table
+sample_richness %>%
+  group_by(species_id, subgenus) %>%
+  summarise(
+    n_bees      = n(),
+    mean_rich   = round(mean(community_richness), 1),
+    median_rich = median(community_richness),
+    sd_rich     = round(sd(community_richness), 1),
+    .groups     = "drop"
+  ) %>%
+  arrange(desc(median_rich)) %>%
+  print(n = 25)
+
+# Kruskal-Wallis test
+kw <- kruskal.test(community_richness ~ species_id, data = sample_richness)
+cat("\nKruskal-Wallis test across bee species:\n")
+print(kw)
+```
+
+```{r community-richness-plot, fig.height=7, fig.width=9}
+species_order_comm <- sample_richness %>%
+  group_by(species_id) %>%
+  summarise(med = median(community_richness), .groups = "drop") %>%
+  arrange(med) %>%
+  pull(species_id)
+
+sample_richness <- sample_richness %>%
+  mutate(species_id = factor(species_id, levels = species_order_comm))
+
+kw_label <- paste0("Kruskal-Wallis  p = ",
+                   formatC(kw$p.value, format = "g", digits = 3))
+
+ggplot(sample_richness, aes(x = species_id, y = community_richness)) +
+  geom_boxplot(aes(fill = subgenus), alpha = 0.65, outlier.shape = NA,
+               linewidth = 0.4) +
+  geom_jitter(aes(size = n_MAGs), color = "grey30",
+              width = 0.2, alpha = 0.75) +
+  coord_flip() +
+  scale_fill_manual(values   = subgenus_colors, name = "Host subgenus",
+                    na.value = "grey80") +
+  scale_size_continuous(range = c(2, 6), name = "MAGs\nrecovered") +
+  annotate("text", x = Inf, y = Inf, label = kw_label,
+           hjust = 1.05, vjust = 1.5, size = 3.5, color = "grey30") +
+  labs(
+    title    = "Community-level CAZyme richness by host bumblebee species",
+    subtitle = "Unique CAZyme families across all MAGs recovered per bee | Point size = # MAGs",
+    x        = expression(italic("Bombus") ~ "species"),
+    y        = "Community CAZyme richness (# unique families)"
+  ) +
+  theme_classic(base_size = 12) +
+  theme(
+    axis.text.y = element_text(face = "italic"),
+    plot.title  = element_text(face = "bold"),
+    legend.text = element_text(size = 9)
+  )
+```
+
+```{r community-richness-country, fig.height=7, fig.width=13}
+sample_richness_filt <- sample_richness %>%
+  filter(country %in% c("US", "Colombia"))
+
+species_order_country <- sample_richness_filt %>%
+  group_by(species_id) %>%
+  summarise(med = median(community_richness), .groups = "drop") %>%
+  arrange(med) %>%
+  pull(species_id)
+
+sample_richness_filt <- sample_richness_filt %>%
+  mutate(species_id = factor(species_id, levels = species_order_country))
+
+ggplot(sample_richness_filt, aes(x = species_id, y = community_richness)) +
+  geom_boxplot(aes(fill = subgenus), alpha = 0.65, outlier.shape = NA,
+               linewidth = 0.4) +
+  geom_jitter(aes(size = n_MAGs), color = "grey30",
+              width = 0.2, alpha = 0.75) +
+  coord_flip() +
+  facet_wrap(~ country, ncol = 2, scales = "free_y") +
+  scale_fill_manual(values   = subgenus_colors, name = "Host subgenus",
+                    na.value = "grey80") +
+  scale_size_continuous(range = c(2, 6), name = "MAGs\nrecovered") +
+  labs(
+    title = "Community-level CAZyme richness by host species and country",
+    x     = expression(italic("Bombus") ~ "species"),
+    y     = "Community CAZyme richness (# unique families)"
+  ) +
+  theme_classic(base_size = 11) +
+  theme(
+    axis.text.y      = element_text(face = "italic"),
+    plot.title       = element_text(face = "bold"),
+    strip.background = element_rect(fill = "grey90"),
+    strip.text       = element_text(face = "bold", size = 11),
+    legend.text      = element_text(size = 9)
+  )
+```

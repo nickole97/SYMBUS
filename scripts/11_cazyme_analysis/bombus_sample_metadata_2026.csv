@@ -1,0 +1,114 @@
+sample_id,year,date,subgenus,species_id,id_certainty,morphotype,country,area,location,site,land_type,habitat_type,lat,lon,elev_masl,collector,caste,gut_storage_method
+NV006,2024,0122,Cullumanobombus,funebris,high ,funebris-worker,Colombia,Cundinamarca,Mataredonda,Mataredonda,Private,Paramo,4.559755,-74.005798,3420,NAV,Female,Whole in 95pct EtOH
+NV007,2024,0122,Cullumanobombus,robustus,moderate,robustus-worker,Colombia,Cundinamarca,Mataredonda,Mataredonda,Private,Paramo,4.559755,-74.005798,3420,NAV,Female,Whole in 95pct EtOH
+NV002,2024,0122,Cullumanobombus,rubicundus,high ,rubicundus-worker,Colombia,Cundinamarca,Mataredonda,Mataredonda,Private,Paramo,4.559755,-74.005798,3420,NAV,Female,Whole in 95pct EtOH
+NV008,2024,0126,Thoracobombus,atratus,high,atratus-worker,Colombia,Cundinamarca,Via_choachi,Via_choachi,Private,sub_paramo,4.648678,-73.886814,2700,NAV,Female,Whole in 95pct EtOH
+NV009,2024,0126,Cullumanobombus,hortulanus ,moderate,hortulanus-worker,Colombia,Cundinamarca,Via_choachi,Via_choachi,Private,sub_paramo,4.648678,-73.886814,2700,NAV,Female,Whole in 95pct EtOH
+NV010,2024,0126,Cullumanobombus,hortulanus ,moderate,hortulanus-worker,Colombia,Cundinamarca,Via_choachi,Via_choachi,Private,sub_paramo,4.648678,-73.886814,2700,NAV,Female,Whole in 95pct EtOH
+NV016,2024,0130,Cullumanobombus,hortulanus ,moderate,hortulanus-worker,Colombia,Cundinamarca,Via_choachi,Via_choachi,Private,sub_paramo,4.648678,-73.886814,2700,NAV,Female,Whole in 95pct EtOH
+NV015,2024,0130,Cullumanobombus,rubicundus,high ,rubicundus-worker,Colombia,Cundinamarca,Via_choachi,Via_choachi,Private,sub_paramo,4.648678,-73.886814,2700,NAV,Female,Whole in 95pct EtOH
+NV018,2024,0206,Cullumanobombus,funebris,high ,funebris-worker,Colombia,Cundinamarca,Mataredonda,Mataredonda,Private,Paramo,4.560979,-74.000589,3420,NAV,Female,Whole in 95pct EtOH
+NV019,2024,0206,Cullumanobombus,funebris,high ,funebris-worker,Colombia,Cundinamarca,Mataredonda,Mataredonda,Private,Paramo,4.560979,-74.000589,3420,NAV,Female,Whole in 95pct EtOH
+NV020,2024,0206,Cullumanobombus,funebris,high ,funebris-worker,Colombia,Cundinamarca,Mataredonda,Mataredonda,Private,Paramo,4.560979,-74.000589,3420,NAV,Female,Whole in 95pct EtOH
+NV017,2024,0206,Cullumanobombus,robustus,moderate,robustus-worker,Colombia,Cundinamarca,Mataredonda,Mataredonda,Private,Paramo,4.560979,-74.000589,3420,NAV,Female,Whole in 95pct EtOH
+NV022,2024,0206,Cullumanobombus,rubicundus,high ,rubicundus-worker,Colombia,Cundinamarca,Mataredonda,Mataredonda,Private,Paramo,4.560979,-74.000589,3420,NAV,Female,Whole in 95pct EtOH
+NV032,2024,0213,Cullumanobombus,robustus,high ,robustus-worker,Colombia,Cundinamarca,FincaSuasie,FincaSuasie,Private,BosqueAltoAndino ,4.718169,-73.862708,3076,NAV,Female,Whole in 95pct EtOH
+NV033,2024,0213,Cullumanobombus,robustus,high ,robustus-worker,Colombia,Cundinamarca,FincaSuasie,FincaSuasie,Private,BosqueAltoAndino ,4.718169,-73.862708,3076,NAV,Female,Whole in 95pct EtOH
+NV034,2024,0213,Cullumanobombus,robustus,high ,robustus-worker,Colombia,Cundinamarca,FincaSuasie,FincaSuasie,Private,BosqueAltoAndino ,4.718169,-73.862708,3076,NAV,Female,Whole in 95pct EtOH
+NV029,2024,0213,Cullumanobombus,rubicundus,high ,rubicundus-worker,Colombia,Cundinamarca,FincaSuasie,FincaSuasie,Private,BosqueAltoAndino ,4.718169,-73.862708,3076,NAV,Female,Whole in 95pct EtOH
+NV036,2024,0219,Thoracobombus,atratus,high,atratus-worker,Colombia,Cundinamarca,Bogota,JBB,Public,BothanicalGarden ,4.668888,-74.10162,2600,NAV,Female,Whole in 95pct EtOH
+NV041,2024,0228,Cullumanobombus,hortulanus ,moderate,hortulanus-worker,Colombia,Cundinamarca,Sumapaz,Chaquen ,Private,Paramo,4.17105479,-74.1481890,2850,NAV,Female,Whole in 95pct EtOH
+NV048,2024,0304,Cullumanobombus,robustus,moderate,robustus-worker,Colombia,Cundinamarca,Sopo,Sopo,Private,Blueberry_crops,4.91346,-73.92599,2700,NAV,Female,Whole in 95pct EtOH
+NV057,2024,0317,Thoracobombus,atratus,high ,atratus-worker,Colombia,Antioquia ,Envigado,Envigado,Private,BosqueAltoAndino ,6.119200,-75.5844,2300,NAV,Female,Whole in 95pct EtOH
+NV059,2024,0317,Thoracobombus,atratus,high,atratus-worker,Colombia,Antioquia ,Envigado,Envigado,Private,BosqueAltoAndino ,6.119200,-75.5844,2300,NAV,Female,Whole in 95pct EtOH
+202006130740,2020,0613,Separatobombus,morrisoni,high,morrisoni-worker,US,Moab_UT,Mill_Creek,Mill creek meadow,BLM,,38.55457,-109.49558,1347,TJH,worker,Whole in 95pct EtOH
+202006130802,2020,0613,Fervidobombus,pensylvanicus,high,pensyl-worker,US,Moab_UT,Mill_Creek,Mill creek meadow 2,BLM,,38.55777,-109.50029,1334,TJH,worker,Whole in 95pct EtOH
+202006141025,2020,0614,Pyrobombus,bifarius,low,put-bif-queen,US,Moab_UT,La_Sals,Clark lake trail,MantiLaSal_NF,,38.49788,-109.26657,2873,TJH,queen,Whole in 95pct EtOH
+202006141434,2020,0614,Pyrobombus,flavifrons_flavifrons,moderate,put-flav-flav-queen,US,Moab_UT,La_Sals,Burro pass meadow,MantiLaSal_NF,,38.49331,-109.22144,3178,TJH,queen,Whole in 95pct EtOH
+202006141000,2020,0614,Pyrobombus,flavifrons_flavifrons,moderate,put-flav-flav-queen,US,Moab_UT,La_Sals,Clark lake trail,MantiLaSal_NF,,38.49788,-109.26657,2873,TJH,queen,Whole in 95pct EtOH
+202006141004,2020,0614,Pyrobombus,flavifrons_flavifrons,moderate,put-flav-flav-queen,US,Moab_UT,La_Sals,Clark lake trail,MantiLaSal_NF,,38.49788,-109.26657,2873,TJH,queen,Whole in 95pct EtOH
+202006140954,2020,0614,Pyrobombus,huntii,moderate,put-huntii-queen-sm,US,Moab_UT,La_Sals,Clark lake trail,MantiLaSal_NF,,38.49788,-109.26657,2873,TJH,queen,Whole in 95pct EtOH
+202006140952,2020,0614,Psithyrus,insularis,high,put-insularis-female,US,Moab_UT,La_Sals,Clark lake trail,MantiLaSal_NF,,38.49788,-109.26657,2873,TJH,female_cuckoo,Whole in 95pct EtOH
+202006141241,2020,0614,Bombias,nevadensis,moderate,put-nevadensis-worker,US,Moab_UT,La_Sals,Trailside meadow 1,MantiLaSal_NF,,38.48878,-109.24425,3099,TJH,worker,Whole in 95pct EtOH
+202006141411,2020,0614,Bombias,nevadensis,moderate,put-nevadensis-worker,US,Moab_UT,La_Sals,Burro pass meadow,MantiLaSal_NF,,38.49331,-109.22144,3178,TJH,worker,Whole in 95pct EtOH
+202006140655,2020,0614,Fervidobombus,pensylvanicus,high,pensyl-worker,US,Moab_UT,Mill_Creek,Mill creek meadow,BLM,,38.55457,-109.49558,1347,TJH,worker,Whole in 95pct EtOH
+202006160929,2020,0616,Separatobombus,griseocollis,high,put-gris-queen,US,Moab_UT,La_Sals,Pack creek picnic area,MantiLaSal_NF,,38.43501,-109.33871,1971,TJH,queen,Whole in 95pct EtOH
+202006160733,2020,0616,Fervidobombus,pensylvanicus,high,pensyl-worker,US,Moab_UT,Mill_Creek,Mill creek meadow,BLM,,38.55457,-109.49558,1347,TJH,worker,Whole in 95pct EtOH
+202006170730,2020,0617,Pyrobombus,huntii,moderate,put-huntii-worker,US,Moab_UT,Mill_Creek,Mill creek meadow,BLM,,38.55457,-109.49558,1347,TJH,worker,Whole in 95pct EtOH
+202006170738,2020,0617,Pyrobombus,huntii,moderate,put-huntii-worker,US,Moab_UT,Mill_Creek,Mill creek meadow,BLM,,38.55457,-109.49558,1347,TJH,worker,Whole in 95pct EtOH
+202006170638,2020,0617,Separatobombus,morrisoni,high,morrisoni-worker,US,Moab_UT,Mill_Creek,Mill creek meadow,BLM,,38.55457,-109.49558,1347,TJH,worker,Whole in 95pct EtOH
+202006170641,2020,0617,Separatobombus,morrisoni,high,morrisoni-worker,US,Moab_UT,Mill_Creek,Mill creek meadow,BLM,,38.55457,-109.49558,1347,TJH,worker,Whole in 95pct EtOH
+202006181714,2020,0618,Separatobombus,morrisoni,high,morrisoni-worker,US,GrandStaircase_UT,Long_Canyon_Deer_Creek??,Burr trail scenic backway roadside,BLM,,37.89042,-111.26914,1803,TJH,worker,Whole in 95pct EtOH
+202006181715,2020,0618,Separatobombus,morrisoni,high,morrisoni-worker,US,GrandStaircase_UT,Long_Canyon_Deer_Creek??,Burr trail scenic backway roadside,BLM,,37.89042,-111.26914,1803,TJH,worker,Whole in 95pct EtOH
+202006181722,2020,0618,Separatobombus,morrisoni,high,morrisoni-worker,US,GrandStaircase_UT,Long_Canyon_Deer_Creek??,Burr trail scenic backway roadside,BLM,,37.89042,-111.26914,1803,TJH,worker,Whole in 95pct EtOH
+202006191005,2020,0619,Fervidobombus,fervidus,high,put-ferv-worker-1,US,GrandStaircase_UT,Long_Canyon_Deer_Creek??,Deer creek meadow,BLM,,37.85284,-111.3558,1733,TJH,worker,Whole in 95pct EtOH
+202006191009,2020,0619,Fervidobombus,fervidus,high,put-ferv-worker-1,US,GrandStaircase_UT,Long_Canyon_Deer_Creek??,Deer creek meadow,BLM,,37.85284,-111.3558,1733,TJH,worker,Whole in 95pct EtOH
+202006191451,2020,0619,Fervidobombus,fervidus,high,put-ferv-worker-1,US,ShowalterMtn_UT,Buckskin_Road, ,Dixie_NF,,37.97569,-112.57359,2367,TJH,worker,Whole in 95pct EtOH
+202006191520,2020,0619,Fervidobombus,fervidus,high,put-ferv-worker-1,US,ShowalterMtn_UT,Buckskin_Road, ,Dixie_NF,,37.97569,-112.57359,2367,TJH,worker,Whole in 95pct EtOH
+202006191502,2020,0619,Pyrobombus,huntii,moderate,put-huntii-queen-lg,US,ShowalterMtn_UT,Buckskin_Road,,Dixie_NF,,37.97569,-112.57359,2367,TJH,queen,Whole in 95pct EtOH
+202006191503,2020,0619,Pyrobombus,huntii,moderate,put-huntii-queen-lg,US,ShowalterMtn_UT,Buckskin_Road,,Dixie_NF,,37.97569,-112.57359,2367,TJH,queen,Whole in 95pct EtOH
+202006191514,2020,0619,Pyrobombus,huntii,moderate,put-huntii-queen-sm,US,ShowalterMtn_UT,Buckskin_Road, ,Dixie_NF,,37.97569,-112.57359,2367,TJH,queen,Whole in 95pct EtOH
+202006191500,2020,0619,Pyrobombus,mixtus,moderate,put-mixtus-worker,US,ShowalterMtn_UT,Buckskin_Road, ,Dixie_NF,,37.97569,-112.57359,2367,TJH,worker,Whole in 95pct EtOH
+202006231015,2020,0623,Fervidobombus,fervidus,high,put-ferv-worker-2,US,Reno_NV,Woodchuck_Circle_Rd, ,public,,39.49522,-119.89122,1505,F_Muth,worker,Whole in 95pct EtOH
+202006231018,2020,0623,Fervidobombus,fervidus,high,put-ferv-worker-2,US,Reno_NV,Woodchuck_Circle_Rd, ,public,,39.49522,-119.89122,1505,F_Muth,worker,Whole in 95pct EtOH
+202006231021,2020,0623,Separatobombus,morrisoni,high,morrisoni-worker,US,Reno_NV,Woodchuck_Circle_Rd,,public,,39.49522,-119.89122,1505,F_Muth,worker,Whole in 95pct EtOH
+202006240912,2020,0624,Fervidobombus,fervidus,high,put-ferv-worker-2,US,Reno_NV,Woodchuck_Circle_Rd, ,public,,39.49522,-119.89122,1505,F_Muth,worker,Whole in 95pct EtOH
+202006260754,2020,0626,Separatobombus,morrisoni,high,morrisoni-worker,US,Reno_NV,Woodchuck_Circle_Rd, ,public,,39.49522,-119.89122,1505,TJH,worker,Whole in 95pct EtOH
+202006260757,2020,0626,Separatobombus,morrisoni,high,morrisoni-worker,US,Reno_NV,Woodchuck_Circle_Rd, ,public,,39.49522,-119.89122,1505,TJH,worker,Whole in 95pct EtOH
+202006260756,2020,0626,Pyrobombus,vandykei,moderate,put-vandykei-worker,US,Reno_NV,Woodchuck_Circle_Rd, ,public,,39.49522,-119.89122,1505,TJH,worker,Whole in 95pct EtOH
+202006260801,2020,0626,Pyrobombus,vandykei,moderate,put-vandykei-worker,US,Reno_NV,Woodchuck_Circle_Rd,,public,,39.49522,-119.89122,1505,TJH,worker,Whole in 95pct EtOH
+202007160832,2020,0716,Pyrobombus,vandykei,high,put-vandykei-worker,US,Reno_NV,Hunter_Lake_Rd,Musk thistle patch 1,public,,39.46893,-119.86311,1756,TJH,worker,Whole in 95pct EtOH
+202007231044,2020,0723,Pyrobombus,flavifrons_dimidiatus,moderate,put-flav-dimid-worker,US,Truckee_CA,Sage_Hen_Campground,Meadow,Tahoe_NF,,39.43178,-120.26028,1991,TJH,worker,Whole in 95pct EtOH
+202007230957,2020,0723,Pyrobombus,flavifrons_dimidiatus,moderate,put-flav-dimid-worker,US,Truckee_CA,Sage_Hen_Campground,Meadow,Tahoe_NF,,39.43178,-120.26028,1991,TJH,worker,Whole in 95pct EtOH
+202007231018,2020,0723,Pyrobombus,flavifrons_dimidiatus,moderate,put-flav-dimid-worker,US,Truckee_CA,Sage_Hen_Campground,Meadow,Tahoe_NF,,39.43178,-120.26028,1991,TJH,worker,Whole in 95pct EtOH
+202007251330,2020,0725,Pyrobombus,bifarius_nearcticus,moderate,put-bif-nearc-worker,US,Truckee_CA,Van_Norden_Meadow, ,Tahoe_NF,,39.31302,-120.35515,2070,TJH,worker,Whole in 95pct EtOH
+202007251343,2020,0725,Pyrobombus,bifarius_nearcticus,moderate,put-bif-nearc-worker,US,Truckee_CA,Van_Norden_Meadow, ,Tahoe_NF,,39.31302,-120.35515,2070,TJH,worker,Whole in 95pct EtOH
+202007251344,2020,0725,Pyrobombus,bifarius_nearcticus,moderate,put-bif-nearc-worker,US,Truckee_CA,Van_Norden_Meadow, ,Tahoe_NF,,39.31302,-120.35515,2070,TJH,worker,Whole in 95pct EtOH
+202007251338,2020,0725,Pyrobombus,flavifrons_dimidiatus,moderate,put-flav-dimid-worker,US,Truckee_CA,Van_Norden_Meadow, ,Tahoe_NF,,39.31302,-120.35515,2070,TJH,worker,Whole in 95pct EtOH
+202007251412,2020,0725,Pyrobombus,flavifrons_dimidiatus,moderate,put-flav-dimid-worker,US,Truckee_CA,Van_Norden_Meadow, ,Tahoe_NF,,39.31302,-120.35515,2070,TJH,worker,Whole in 95pct EtOH
+202007251415,2020,0725,Pyrobombus,flavifrons_dimidiatus,moderate,put-flav-dimid-worker,US,Truckee_CA,Van_Norden_Meadow, ,Tahoe_NF,,39.31302,-120.35515,2070,TJH,worker,Whole in 95pct EtOH
+202007251339,2020,0725,Pyrobombus,sylvicola,moderate,put-sylvicola-worker,US,Truckee_CA,Van_Norden_Meadow, ,Tahoe_NF,,39.31302,-120.35515,2070,TJH,worker,Whole in 95pct EtOH
+202008061632,2020,0806,Fervidobombus,fervidus,high,put-ferv-worker-1,US,Flagstaff_AZ,Hwy_180,Parking lot,Coconino_NF,,35.26455,-111.70477,2247,TJH,worker,Whole in 95pct EtOH
+202008061638,2020,0806,Fervidobombus,fervidus,high,put-ferv-worker-1,US,Flagstaff_AZ,Hwy_180,Parking lot,Coconino_NF,,35.26455,-111.70477,2247,TJH,worker,Whole in 95pct EtOH
+202008071556,2020,0807,Fervidobombus,fervidus,high,put-ferv-worker-1,US,Flagstaff_AZ,Lockett_Meadow, ,Coconino_NF,,35.3592,-111.62019,2607,TJH,worker,Whole in 95pct EtOH
+202008071531,2020,0807,Pyrobombus,flavifrons_flavifrons,moderate,put-flav-flav-worker,US,Flagstaff_AZ,Lockett_Meadow, ,Coconino_NF,,35.3592,-111.62019,2607,TJH,worker,Whole in 95pct EtOH
+202008071558,2020,0807,Pyrobombus,flavifrons_flavifrons,moderate,put-flav-flav-worker,US,Flagstaff_AZ,Lockett_Meadow,,Coconino_NF,,35.3592,-111.62019,2607,TJH,worker,Whole in 95pct EtOH
+202008071537,2020,0807,Pyrobombus,huntii,moderate,put-huntii-worker,US,Flagstaff_AZ,Lockett_Meadow, ,Coconino_NF,,35.3592,-111.62019,2607,TJH,worker,Whole in 95pct EtOH
+202008071541,2020,0807,Pyrobombus,huntii,moderate,put-huntii-worker,US,Flagstaff_AZ,Lockett_Meadow, ,Coconino_NF,,35.3592,-111.62019,2607,TJH,worker,Whole in 95pct EtOH
+202008080859,2020,0808,Pyrobombus,huntii,moderate,put-huntii-worker,US,Flagstaff_AZ,Hwy_89_Roadside,Cleome patch 1,Coconino_NF,,35.314,-111.54225,2044,TJH,worker,Whole in 95pct EtOH
+202008080850,2020,0808,Separatobombus,morrisoni,high,morrisoni-worker,US,Flagstaff_AZ,Hwy_89_Roadside,Cleome patch 1,Coconino_NF,,35.314,-111.54225,2044,TJH,worker,Whole in 95pct EtOH
+202008090837,2020,0809,Cullumanobombus,rufocinctus,moderate,put-rufo-worker,US,Flagstaff_AZ,FS_Rd_556,,Coconino_NF,,35.28359,-111.60113,2313,TJH,worker,Whole in 95pct EtOH
+202008090840,2020,0809,Cullumanobombus,rufocinctus,moderate,put-rufo-worker,US,Flagstaff_AZ,FS_Rd_556, ,Coconino_NF,,35.28359,-111.60113,2313,TJH,worker,Whole in 95pct EtOH
+202008101752,2020,0810,Separatobombus,morrisoni,high,morrisoni-worker,US,Flagstaff_AZ,Hwy_89_Roadside,Cleome patch 2,Coconino_NF,,35.27055,-111.5455,2052,TJH,male,Whole in 95pct EtOH
+202008110804,2020,0811,Separatobombus,morrisoni,high,morrisoni-worker,US,Flagstaff_AZ,Hwy_89_Roadside,Cleome patch 1,Coconino_NF,,35.314,-111.54225,2044,TJH,male,Whole in 95pct EtOH
+202008210903,2020,0821,Separatobombus,morrisoni,high,morrisoni-worker,US,Pinalenos_AZ,Clark_Peak_Trail,Small hill near Taylor pass,Coronado_NF,,32.72565,-109.99782,2584,TJH,worker,Whole in 95pct EtOH
+202008211004,2020,0821,Separatobombus,morrisoni,high,morrisoni-worker,US,Pinalenos_AZ,Clark_Peak_Trail,Small hill near Taylor pass,Coronado_NF,,32.72565,-109.99782,2584,TJH,worker,Whole in 95pct EtOH
+202008211016,2020,0821,Separatobombus,morrisoni,high,morrisoni-worker,US,Pinalenos_AZ,Clark_Peak_Trail,Small hill near Taylor pass,Coronado_NF,,32.72565,-109.99782,2584,TJH,worker,Whole in 95pct EtOH
+202008210912,2020,0821,Fervidobombus,sonorus,high,sonorus-worker,US,Pinalenos_AZ,Clark_Peak_Trail,Small hill near Taylor pass,Coronado_NF,,32.72565,-109.99782,2584,TJH,worker,Whole in 95pct EtOH
+202008210916,2020,0821,Fervidobombus,sonorus,high,sonorus-worker,US,Pinalenos_AZ,Clark_Peak_Trail,Small hill near Taylor pass,Coronado_NF,,32.72565,-109.99782,2584,TJH,worker,Whole in 95pct EtOH
+202008210927,2020,0821,Fervidobombus,sonorus,high,sonorus-worker,US,Pinalenos_AZ,Clark_Peak_Trail,Small hill near Taylor pass,Coronado_NF,,32.72565,-109.99782,2584,TJH,worker,Whole in 95pct EtOH
+202008241711,2020,0824,Fervidobombus,sonorus,high,sonorus-worker,US,Chiricahuas_AZ,Turkey_Creek_Rd,East near campground,Coronado_NF,,31.86336,-109.33912,1874,TJH,worker,Whole in 95pct EtOH
+202008270624,2020,0827,Fervidobombus,sonorus,high,sonorus-worker,US,Chiricahuas_AZ,Paradise_Cemetary, ,Coronado_NF,,31.93213,-109.20815,1672,TJH,worker,Whole in 95pct EtOH
+202008280618,2020,0828,Fervidobombus,sonorus,high,sonorus-worker,US,Rincons_AZ,Redington_Rd, ,Coronado_NF,,32.30686,-110.60793,1311,TJH,worker,Whole in 95pct EtOH
+202008280744,2020,0828,Fervidobombus,sonorus,high,sonorus-worker,US,Rincons_AZ,Italian_Springs_Trail,Dry creekbed,Coronado_NF,,32.28133,-110.57073,1211,TJH,worker,Whole in 95pct EtOH
+202008280746,2020,0828,Fervidobombus,sonorus,high,sonorus-worker,US,Rincons_AZ,Italian_Springs_Trail,Dry creekbed,Coronado_NF,,32.28133,-110.57073,1211,TJH,worker,Whole in 95pct EtOH
+202008280737,2020,0828,Fervidobombus,sonorus,high,sonorus-worker,US,Rincons_AZ,Italian_Springs_Trail,Dry creekbed,Coronado_NF,,32.28133,-110.57073,1211,TJH,worker,Whole in 95pct EtOH
+202009160713,2020,0916,Fervidobombus,pensylvanicus,high,pensyl-worker,US,Austin_TX,Mueller_Development,,public,,30.28985,-97.7001,173,TJH,worker,Whole in 95pct EtOH
+202009160716,2020,0916,Fervidobombus,pensylvanicus,high,pensyl-worker,US,Austin_TX,Mueller_Development,,public,,30.28985,-97.7001,173,TJH,worker,Whole in 95pct EtOH
+202009160718,2020,0916,Fervidobombus,pensylvanicus,high,pensyl-worker,US,Austin_TX,Mueller_Development,,public,,30.28985,-97.7001,173,TJH,worker,Whole in 95pct EtOH
+202203161048G,2022,0316,Pyrobombus,vosnesenskii,high,,US,Laguna_CA,,,,,,,,,worker,
+202204121034G,2022,0412,Pyrobombus,vosnesenskii,high,,US,Laguna_CA,,,,,,,,,worker,
+202204261031G,2022,0426,Pyrobombus,vosnesenskii,high,,US,Laguna_CA,,,,,,,,,worker,
+202205261050G,2022,0526,Pyrobombus,vosnesenskii,high,,US,Laguna_CA,,,,,,,,,worker,
+202206071034G,2022,0607,Pyrobombus,vosnesenskii,high,,US,Laguna_CA,,,,,,,,,worker,
+202206071041G,2022,0607,Pyrobombus,vosnesenskii,high,,US,Laguna_CA,,,,,,,,,worker,
+202206231027G,2022,0623,Pyrobombus,vosnesenskii,high,,US,Laguna_CA,,,,,,,,,worker,
+202207201102G,2022,0720,Pyrobombus,vosnesenskii,high,,US,Laguna_CA,,,,,,,,,worker,
+202207201108G,2022,0720,Pyrobombus,vosnesenskii,high,,US,Laguna_CA,,,,,,,,,worker,
+202208031017G,2022,0803,Pyrobombus,vosnesenskii,high,,US,Laguna_CA,,,,,,,,,worker,
+202208031026G,2022,0803,Pyrobombus,vosnesenskii,high,,US,Laguna_CA,,,,,,,,,worker,
+202208031036G,2022,0803,Pyrobombus,vosnesenskii,high,,US,Laguna_CA,,,,,,,,,worker,
+202208031038G,2022,0803,Pyrobombus,vosnesenskii,high,,US,Laguna_CA,,,,,,,,,worker,
+202208170919G,2022,0817,Pyrobombus,vosnesenskii,high,,US,Laguna_CA,,,,,,,,,worker,
+202208170928G,2022,0817,Pyrobombus,vosnesenskii,high,,US,Laguna_CA,,,,,,,,,worker,
+202208171107G,2022,0817,Pyrobombus,vosnesenskii,high,,US,Laguna_CA,,,,,,,,,worker,
