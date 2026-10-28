@@ -31,7 +31,7 @@ echo "Threads:    ${SLURM_CPUS_PER_TASK}"
 
 iqtree2 \
     -s "${ALN}" \
-    -p "${PART}" \
+    -q "${PART}" \
     -m TEST \
     -bb 1000 \
     -alrt 1000 \
