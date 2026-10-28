@@ -6,6 +6,7 @@
 #SBATCH --mem=64G
 #SBATCH --time=08:00:00
 #SBATCH --partition=standard
+#SBATCH --account=hammert_lab
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Step 2: OrthoFinder — orthogroups across all Snodgrassella genomes

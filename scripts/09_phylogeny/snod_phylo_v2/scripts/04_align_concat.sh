@@ -6,6 +6,7 @@
 #SBATCH --mem=16G
 #SBATCH --time=04:00:00
 #SBATCH --partition=standard
+#SBATCH --account=hammert_lab
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Step 4: Align each core orthogroup (MAFFT), trim (trimAl),
