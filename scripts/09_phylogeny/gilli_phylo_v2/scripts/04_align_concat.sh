@@ -8,18 +8,13 @@
 #SBATCH --partition=standard
 #SBATCH --account=hammert_lab
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Step 4: Align each core orthogroup (MAFFT), trim (trimAl),
-#         then concatenate into a protein supermatrix
-# ─────────────────────────────────────────────────────────────────────────────
-
 source ~/.bashrc
 conda activate phylo
 set -euo pipefail
 
 ROOT="/dfs10/hammert-lab/nvillabo/Ch2/work_meta/09_phylogeny/gilli_phylo_v2"
-OG_DIR="${ROOT}/05_core_OGs"
-ALN_DIR="${ROOT}/06_alignments"
+OG_DIR="${ROOT}/04_core_OGs"
+ALN_DIR="${ROOT}/05_alignments"
 mkdir -p "${ALN_DIR}/raw" "${ALN_DIR}/trimmed"
 
 N_CORE=$(wc -l < "${OG_DIR}/core_OG_ids.txt")
@@ -49,20 +44,20 @@ from Bio.SeqRecord import SeqRecord
 from Bio.Seq import Seq
 from collections import defaultdict
 
-root = Path("/dfs10/hammert-lab/nvillabo/Ch2/work_meta/09_phylogeny/gilli_phylo_v2")
-aln_dir = root / "06_alignments/trimmed"
-out_dir  = root / "06_alignments"
+root    = Path("/dfs10/hammert-lab/nvillabo/Ch2/work_meta/09_phylogeny/gilli_phylo_v2")
+aln_dir = root / "05_alignments/trimmed"
+out_dir = root / "05_alignments"
 
 all_alns = sorted(aln_dir.glob("*.trimmed.aln"))
 print(f"Found {len(all_alns)} trimmed alignments")
 
-supermatrix = defaultdict(str)
+supermatrix     = defaultdict(str)
 partition_lines = []
 pos = 1
 
 for aln_file in all_alns:
-    aln = AlignIO.read(aln_file, "fasta")
-    og  = aln_file.stem.replace(".trimmed", "")
+    aln     = AlignIO.read(aln_file, "fasta")
+    og      = aln_file.stem.replace(".trimmed", "")
     aln_len = aln.get_alignment_length()
     partition_lines.append(f"LG, {og} = {pos}-{pos + aln_len - 1}")
     pos += aln_len
@@ -83,4 +78,4 @@ print(f"Partition file: {partition_file}")
 PYEOF
 
 echo "Concatenation complete."
-ls -lh "${ROOT}/06_alignments/supermatrix.faa" "${ROOT}/06_alignments/partitions.txt"
+ls -lh "${ROOT}/05_alignments/supermatrix.faa" "${ROOT}/05_alignments/partitions.txt"

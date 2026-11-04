@@ -8,22 +8,15 @@
 #SBATCH --partition=standard
 #SBATCH --account=hammert_lab
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Step 5: IQ-TREE2 — maximum-likelihood phylogeny from protein supermatrix
-# -m TEST    → model selection per partition
-# -bb 1000   → ultrafast bootstrap
-# -alrt 1000 → SH-aLRT branch support
-# ─────────────────────────────────────────────────────────────────────────────
-
 source ~/.bashrc
 conda activate phylo
 set -euo pipefail
 
 ROOT="/dfs10/hammert-lab/nvillabo/Ch2/work_meta/09_phylogeny/gilli_phylo_v2"
-ALN="${ROOT}/06_alignments/supermatrix.faa"
-PART="${ROOT}/06_alignments/partitions.txt"
-OUT="${ROOT}/07_iqtree"
-mkdir -p "${OUT}" "${ROOT}/logs"
+ALN="${ROOT}/05_alignments/supermatrix.faa"
+PART="${ROOT}/05_alignments/partitions.txt"
+OUT="${ROOT}/06_iqtree"
+mkdir -p "${OUT}"
 
 echo "Input:      ${ALN}"
 echo "Partitions: ${PART}"

@@ -8,42 +8,30 @@
 #SBATCH --partition=standard
 #SBATCH --account=hammert_lab
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Step 2: OrthoFinder — orthogroups across all Snodgrassella genomes
-# Collects all .faa from 03_prodigal/ and runs OrthoFinder
-# ─────────────────────────────────────────────────────────────────────────────
-
 source ~/.bashrc
 conda activate phylo
 set -euo pipefail
 
 ROOT="/dfs10/hammert-lab/nvillabo/Ch2/work_meta/09_phylogeny/snod_phylo_v3"
-MANIFEST="${ROOT}/00_metadata/all_genomes.txt"
-FAA_INPUT="${ROOT}/04_orthofinder/faa_input"
-mkdir -p "${FAA_INPUT}" "${ROOT}/logs"
+FAA_DIR="${ROOT}/02_prodigal"
+OF_INPUT="${ROOT}/03_orthofinder/faa_input"
+OF_OUT="${ROOT}/03_orthofinder/results"
+mkdir -p "${OF_INPUT}" "${ROOT}/logs"
 
-# Collect .faa files into a single input directory
-while IFS=$'\t' read -r genome_id path; do
-    faa="${ROOT}/03_prodigal/${genome_id}/${genome_id}.faa"
-    if [[ -f "${faa}" ]]; then
-        cp "${faa}" "${FAA_INPUT}/${genome_id}.faa"
-    else
-        echo "WARNING: missing .faa for ${genome_id} at ${faa}"
-    fi
-done < "${MANIFEST}"
+# Copy all FAAs into OrthoFinder input dir (flat, one .faa per genome)
+cp "${FAA_DIR}"/*.faa "${OF_INPUT}/"
 
-N=$(ls "${FAA_INPUT}"/*.faa | wc -l)
-echo "Input FAAs: ${N}"
-ls -lh "${FAA_INPUT}/"
+N=$(ls "${OF_INPUT}"/*.faa | wc -l)
+echo "Input FAAs: ${N} genomes"
+ls "${OF_INPUT}/"
 
-# Run OrthoFinder
 orthofinder \
-    -f "${FAA_INPUT}" \
+    -f "${OF_INPUT}" \
     -t ${SLURM_CPUS_PER_TASK} \
     -a ${SLURM_CPUS_PER_TASK} \
-    -o "${ROOT}/04_orthofinder/results" \
+    -o "${OF_OUT}" \
     -M msa
 
 echo ""
 echo "OrthoFinder complete."
-echo "Results in: ${ROOT}/04_orthofinder/results"
+echo "Results: ${OF_OUT}"
