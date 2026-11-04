@@ -13,7 +13,7 @@ conda activate gtdbtk-2.5.2
 set -euo pipefail
 
 ROOT="/dfs10/hammert-lab/nvillabo/Ch2/work_meta/09_phylogeny/gilli_phylo_v2"
-MAG_DIR="/dfs10/hammert-lab/nvillabo/Ch2/work_meta/06_dereplication/derep_genomes"
+MAG_DIR="/dfs10/hammert-lab/nvillabo/Ch2/work_meta/06_MAGs_selected"
 MAG_LIST="${ROOT}/00_metadata/all_gilli_mags.txt"
 REF_DIR="${ROOT}/01_genomes/refs"
 FAA_OUT="${ROOT}/02_prodigal"

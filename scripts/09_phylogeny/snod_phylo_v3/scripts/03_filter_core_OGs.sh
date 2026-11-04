@@ -28,7 +28,8 @@ FAA_DIR="${OF_DIR}/Orthogroup_Sequences"
 OUT="${ROOT}/04_core_OGs"
 mkdir -p "${OUT}"
 
-python3 "$(dirname "$0")/03_filter_core_OGs.py" \
+SCRIPTS="/dfs10/hammert-lab/nvillabo/Ch2/SYMBUS/scripts/09_phylogeny/snod_phylo_v3/scripts"
+python3 "${SCRIPTS}/03_filter_core_OGs.py" \
     --orthogroups "${OG_TSV}" \
     --faa_dir     "${FAA_DIR}" \
     --outdir      "${OUT}"
