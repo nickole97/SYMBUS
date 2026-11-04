@@ -1,0 +1,49 @@
+genome_id	type	gill_species	host_bee	host_group	country	source	accession	notes
+202006130802__50	MAG	Gilliamella apicola_C	Bombus pensylvanicus	Bombus_US	US	This study	—	
+202006140655__202006140655_metabat.2	MAG	Gilliamella apicola_C	Bombus pensylvanicus	Bombus_US	US	This study	—	
+202008280737__202008280737_metabat.5	MAG	Gilliamella apicola_C	Bombus sonorus	Bombus_US	US	This study	—	
+202008061632__65	MAG	Gilliamella apicola_C	Bombus fervidus	Bombus_US	US	This study	—	
+NV008__NV008_metabat.1_sub	MAG	Gilliamella apicola_C	Bombus atratus	Bombus_Colombia	Colombia	This study	—	
+NV036__41	MAG	Gilliamella apicola_C	Bombus atratus	Bombus_Colombia	Colombia	This study	—	
+202008241711__58	MAG	Gilliamella apicola_C	Bombus sonorus	Bombus_US	US	This study	—	
+202008061638__202008061638_metabat.1_sub	MAG	Gilliamella apicola_C	Bombus fervidus	Bombus_US	US	This study	—	
+202008210927__202008210927_metabat.1	MAG	Gilliamella apicola_C	Bombus sonorus	Bombus_US	US	This study	—	
+202008280744__202008280744_metabat.5	MAG	Gilliamella apicola_C	Bombus sonorus	Bombus_US	US	This study	—	
+202006141241__56	MAG	Gilliamella apicola_H	Bombus nevadensis	Bombus_US	US	This study	—	
+202006141411__19	MAG	Gilliamella	Bombus nevadensis	Bombus_US	US	This study	—	
+202008210912__202008210912_metabat.4_sub	MAG	Gilliamella	Bombus sonorus	Bombus_US	US	This study	—	
+202009160713__41	MAG	Gilliamella	Bombus pensylvanicus	Bombus_US	US	This study	—	
+NV002__NV002_metabat.4	MAG	Gilliamella	Bombus rubicundus	Bombus_Colombia	Colombia	This study	—	
+202006170638__0	MAG	Gilliamella apicola_A	Bombus morrisoni	Bombus_US	US	This study	—	
+202006170641__202006170641_metabat.1	MAG	Gilliamella apicola_A	Bombus morrisoni	Bombus_US	US	This study	—	
+202006260754__12	MAG	Gilliamella apicola_A	Bombus morrisoni	Bombus_US	US	This study	—	
+202006181715__202006181715_metabat.1	MAG	Gilliamella apicola_M	Bombus morrisoni	Bombus_US	US	This study	—	
+NV009__NV009_metabat.2	MAG	Gilliamella apicola_M	Bombus hortulanus	Bombus_Colombia	Colombia	This study	—	
+NV016__NV016_metabat.3	MAG	Gilliamella apicola_M	Bombus hortulanus	Bombus_Colombia	Colombia	This study	—	
+NV018__NV018_metabat.1	MAG	Gilliamella apicola_M	Bombus funebris	Bombus_Colombia	Colombia	This study	—	
+202008071537__202008071537_metabat.1	MAG	Gilliamella bombi	Bombus huntii	Bombus_US	US	This study	—	
+202205261050G__202205261050G_metabat.1	MAG	Gilliamella bombi	Bombus vosnesenskii	Bombus_US	US	This study	—	
+202207201102G__202207201102G_metabat.4	MAG	Gilliamella bombi	Bombus vosnesenskii	Bombus_US	US	This study	—	
+NV006__NV006_metabat.1	MAG	Gilliamella	Bombus funebris	Bombus_Colombia	Colombia	This study	—	
+202006240912__14	MAG	Gilliamella apicola_C	Bombus fervidus	Bombus_US	US	This study	—	
+202008071556__202008071556_metabat.1	MAG	Gilliamella apicola_C	Bombus fervidus	Bombus_US	US	This study	—	
+202009160718__202009160718_metabat.5_sub	MAG	Gilliamella apicola_C	Bombus pensylvanicus	Bombus_US	US	This study	—	
+202008210916__69	MAG	Gilliamella apicola_C	Bombus sonorus	Bombus_US	US	This study	—	
+202006191451__39	MAG	Gilliamella apicola_C	Bombus fervidus	Bombus_US	US	This study	—	
+202006191520__202006191520_metabat.1	MAG	Gilliamella apicola_C	Bombus fervidus	Bombus_US	US	This study	—	
+202006160733__202006160733_metabat.4	MAG	Gilliamella apicola_C	Bombus pensylvanicus	Bombus_US	US	This study	—	
+Gris1-4	REF	G. apicola	Bombus griseocollis	Bombus_USA_ref	USA	Zhang et al. 2020	GCA_001690335.1	
+Choc5-1	REF	G. apicola	Bombus impatiens	Bombus_USA_ref	USA	Zhang et al. 2020	GCA_001690595.1	
+Occ3-1	REF	G. apicola	Bombus occidentalis	Bombus_USA_ref	USA	Zhang et al. 2020	GCA_001690655.1	
+ESL0254	REF	Gilliamella sp.	Bombus pascuorum	Bombus_EU_ref	Belgium	Engel lab / mBio 2023	GCA_013344985.1	
+ESL0250	REF	Gilliamella sp.	Bombus pascuorum	Bombus_EU_ref	Belgium	Engel lab / mBio 2023	GCA_013345045.1	
+ESL0232	REF	Gilliamella sp.	Bombus terrestris	Bombus_EU_ref	Europe	Engel lab / mBio 2023	GCA_013346885.1	
+R-53144	REF	G. intestini	Bombus sp.	Bombus_EU_ref	Belgium	Meeus et al. 2015	GCA_900094935.1	Type strain G. intestini
+R-53248	REF	G. bombicola	Unknown	Bombus_EU_ref	Belgium	Meeus et al. 2015	GCA_900094945.1	Type strain G. bombicola
+ESL0721	REF	Gilliamella sp.	Unknown	Unknown	Unknown	Engel lab / mBio 2023	GCA_029433365.1	Orbaceae; originally in Snodgrassella run
+ESL0727	REF	Gilliamella sp.	Unknown	Unknown	Unknown	Engel lab / mBio 2023	GCA_029433345.1	Orbaceae; originally in Snodgrassella run
+Pasteurella_dagmatis	OUTGROUP	Pasteurella dagmatis	Homo sapiens (clinical)	Outgroup	UK	EBI 2017	GCA_900186835.1	Deep outgroup; Pasteurellaceae; non-bee root
+Gilli_Pra-s52	OUTGROUP	Gilliamella sp.	Bombus pratorum	Outgroup	China	Zhang et al. 2020	GCA_009795805.1	Bombus pratorum outgroup
+Gilli_Pra-s54	OUTGROUP	Gilliamella sp.	Bombus pratorum	Outgroup	China	Zhang et al. 2020	GCA_009795785.1	Bombus pratorum outgroup
+Gilli_Pra-s60	OUTGROUP	Gilliamella sp.	Bombus pratorum	Outgroup	China	Zhang et al. 2020	GCA_009795755.1	Bombus pratorum outgroup
+Gilli_Pra-s65	OUTGROUP	Gilliamella sp.	Bombus pratorum	Outgroup	China	Zhang et al. 2020	GCA_009795745.1	Bombus pratorum outgroup
