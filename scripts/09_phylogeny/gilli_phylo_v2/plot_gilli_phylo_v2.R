@@ -4,7 +4,7 @@ library(ape)
 library(ggplot2)
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
-tree_file <- "07_iqtree/gilli_phylo_v2.treefile"
+tree_file <- "06_iqtree/gilli_phylo_v2.treefile"
 md_host   <- read.table("~/Desktop/Ch2/American_bumblebe_md_2025.tsv",
                         sep = "\t", header = TRUE) %>%
   mutate(across(c(SampleID, SpeciesID, Country), trimws))
@@ -40,7 +40,7 @@ full_pal <- c(bee_pal, extra_pal)
 ref_tips <- ref_meta %>%
   filter(type %in% c("REF", "OUTGROUP")) %>%
   transmute(
-    label     = accession,
+    label     = genome_id,   # OrthoFinder uses filename (genome_id) as tip label
     SpeciesID = case_when(
       type == "OUTGROUP"   ~ "Outgroup",
       host_group == "Apis" ~ "Apis",
@@ -56,8 +56,8 @@ tree    <- read.tree(tree_file)
 
 # Root at Pasteurella dagmatis (deep outgroup; most divergent non-Gilliamella)
 # If Pasteurella is not monophyletic with Bombus pratorum outgroups, root at it alone
-pasteurella_tip <- ref_meta %>% filter(genome_id == "Pasteurella_dagmatis") %>% pull(accession)
-outgroup_all    <- ref_meta %>% filter(type == "OUTGROUP") %>% pull(accession)
+pasteurella_tip <- ref_meta %>% filter(genome_id == "Pasteurella_dagmatis") %>% pull(genome_id)
+outgroup_all    <- ref_meta %>% filter(type == "OUTGROUP") %>% pull(genome_id)
 
 # Try rooting at LCA of all outgroups; fall back to Pasteurella alone
 tryCatch({
@@ -162,9 +162,9 @@ p_circ <- ggtree(tree_sc, layout = "circular", linewidth = 0.35) %<+% all_tips +
   theme_tree2(legend.position = "right")
 
 # ── Save ──────────────────────────────────────────────────────────────────────
-ggsave("07_iqtree/gilli_phylo_v2_rect.pdf",  p_rect, width = 13, height = 15, device = "pdf")
-ggsave("07_iqtree/gilli_phylo_v2_circ.pdf",  p_circ, width = 13, height = 13, device = "pdf")
-ggsave("07_iqtree/gilli_phylo_v2_rect.png",  p_rect, width = 13, height = 15, dpi = 200)
-ggsave("07_iqtree/gilli_phylo_v2_circ.png",  p_circ, width = 13, height = 13, dpi = 200)
+ggsave("06_iqtree/gilli_phylo_v2_rect.pdf",  p_rect, width = 13, height = 15, device = "pdf")
+ggsave("06_iqtree/gilli_phylo_v2_circ.pdf",  p_circ, width = 13, height = 13, device = "pdf")
+ggsave("06_iqtree/gilli_phylo_v2_rect.png",  p_rect, width = 13, height = 15, dpi = 200)
+ggsave("06_iqtree/gilli_phylo_v2_circ.png",  p_circ, width = 13, height = 13, dpi = 200)
 
 message("Saved: gilli_phylo_v2_rect.pdf/png  &  gilli_phylo_v2_circ.pdf/png")

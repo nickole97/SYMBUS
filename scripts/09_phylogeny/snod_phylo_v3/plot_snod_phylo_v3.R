@@ -40,7 +40,9 @@ full_pal <- c(bee_pal, extra_pal)
 ref_tips <- ref_meta %>%
   filter(type %in% c("REF", "OUTGROUP")) %>%
   transmute(
-    label     = accession,
+    # OrthoFinder uses filename as tip label:
+    #   REFs use accession (GCA/GCF*.faa), OUTGROUPs use genome_id (*_muelleri.faa)
+    label     = ifelse(type == "OUTGROUP", genome_id, accession),
     SpeciesID = case_when(
       type == "OUTGROUP"              ~ "Outgroup",
       host_group == "Apis"           ~ "Apis",
@@ -60,7 +62,7 @@ tree    <- read.tree(tree_file)
 # Root at LCA of outgroup taxa (Simonsiella + Rivihabitans)
 outgroup_tips <- ref_meta %>%
   filter(type == "OUTGROUP") %>%
-  pull(accession)
+  pull(genome_id)
 outgroup_node <- getMRCA(tree, outgroup_tips)
 tree_rooted   <- root(tree, node = outgroup_node, resolve.root = TRUE)
 
