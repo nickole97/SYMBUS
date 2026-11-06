@@ -40,8 +40,8 @@ ESL0250	REF	Gilliamella sp.	Bombus pascuorum	Bombus_EU_ref	Belgium	Engel lab / m
 ESL0232	REF	Gilliamella sp.	Bombus terrestris	Bombus_EU_ref	Europe	Engel lab / mBio 2023	GCA_013346885.1	
 R-53144	REF	G. intestini	Bombus sp.	Bombus_EU_ref	Belgium	Meeus et al. 2015	GCA_900094935.1	Type strain G. intestini
 R-53248	REF	G. bombicola	Unknown	Bombus_EU_ref	Belgium	Meeus et al. 2015	GCA_900094945.1	Type strain G. bombicola
-ESL0721	REF	Gilliamella sp.	Unknown	Unknown	Unknown	Engel lab / mBio 2023	GCA_029433365.1	Orbaceae; originally in Snodgrassella run
-ESL0727	REF	Gilliamella sp.	Unknown	Unknown	Unknown	Engel lab / mBio 2023	GCA_029433345.1	Orbaceae; originally in Snodgrassella run
+ESL0721	REF	Orbaceae bacterium	Stingless bee	Stingless_bee	Unknown	Sarton-Lohéac et al. 2023 mBio (PRJNA906295)	GCA_029433365.1	Stingless bee gut symbiont; deeply divergent Orbaceae; Engel lab
+ESL0727	REF	Orbaceae bacterium	Stingless bee	Stingless_bee	Unknown	Sarton-Lohéac et al. 2023 mBio (PRJNA906295)	GCA_029433345.1	Stingless bee gut symbiont; deeply divergent Orbaceae; Engel lab
 Pasteurella_dagmatis	OUTGROUP	Pasteurella dagmatis	Homo sapiens (clinical)	Outgroup	UK	EBI 2017	GCA_900186835.1	Deep outgroup; Pasteurellaceae; non-bee root
 Gilli_Pra-s52	OUTGROUP	Gilliamella sp.	Bombus pratorum	Outgroup	China	Zhang et al. 2020	GCA_009795805.1	Bombus pratorum outgroup
 Gilli_Pra-s54	OUTGROUP	Gilliamella sp.	Bombus pratorum	Outgroup	China	Zhang et al. 2020	GCA_009795785.1	Bombus pratorum outgroup

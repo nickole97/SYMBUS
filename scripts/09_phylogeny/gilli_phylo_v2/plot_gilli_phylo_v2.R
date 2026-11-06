@@ -28,11 +28,12 @@ country_abbr   <- c(Colombia = "COL", US = "US", Unknown = "unk")
 country_shapes <- c(Colombia = 21, US = 24, Unknown = 23, Reference = 22, Outgroup = 25)
 
 # ── Colour palette ────────────────────────────────────────────────────────────
-# Gilliamella: refs are mostly Bombus, so reuse the bumble bee palette
+# Gilliamella: refs are mostly Bombus; two strains from stingless bees (ESL0721/0727)
 extra_pal <- c(
-  "Apis"      = "#E8A823",
-  "BombusRef" = "#9966CC",   # purple for Bombus reference isolates
-  "Outgroup"  = "#BBBBBB"
+  "Apis"         = "#E8A823",
+  "BombusRef"    = "#9966CC",   # purple for Bombus reference isolates
+  "StinglessBee" = "#E84646",   # red for stingless bee Orbaceae (ESL0721/0727)
+  "Outgroup"     = "#BBBBBB"
 )
 full_pal <- c(bee_pal, extra_pal)
 
@@ -42,9 +43,10 @@ ref_tips <- ref_meta %>%
   transmute(
     label     = genome_id,   # OrthoFinder uses filename (genome_id) as tip label
     SpeciesID = case_when(
-      type == "OUTGROUP"   ~ "Outgroup",
-      host_group == "Apis" ~ "Apis",
-      TRUE                 ~ "BombusRef"
+      type == "OUTGROUP"              ~ "Outgroup",
+      host_group == "Apis"           ~ "Apis",
+      host_group == "Stingless_bee"  ~ "StinglessBee",
+      TRUE                           ~ "BombusRef"
     ),
     Country   = ifelse(type == "OUTGROUP", "Outgroup", "Reference"),
     tip_label = paste0(
