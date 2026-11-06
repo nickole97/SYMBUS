@@ -47,25 +47,23 @@ ref_tips <- ref_meta %>%
       TRUE                 ~ "BombusRef"
     ),
     Country   = ifelse(type == "OUTGROUP", "Outgroup", "Reference"),
-    tip_label = paste0(genome_id, "\n[", host_bee, "]"),
+    tip_label = paste0(
+      genome_id, "\n[",
+      ifelse(host_bee == "Unknown" | is.na(host_bee), gill_species, host_bee),
+      "]"
+    ),
     is_ref    = TRUE
   )
 
 # ── Load + root tree ──────────────────────────────────────────────────────────
 tree    <- read.tree(tree_file)
 
-# Root at Pasteurella dagmatis (deep outgroup; most divergent non-Gilliamella)
-# If Pasteurella is not monophyletic with Bombus pratorum outgroups, root at it alone
-pasteurella_tip <- ref_meta %>% filter(genome_id == "Pasteurella_dagmatis") %>% pull(genome_id)
-outgroup_all    <- ref_meta %>% filter(type == "OUTGROUP") %>% pull(genome_id)
-
-# Try rooting at LCA of all outgroups; fall back to Pasteurella alone
-tryCatch({
-  og_node    <- getMRCA(tree, outgroup_all)
-  tree_rooted <- root(tree, node = og_node, resolve.root = TRUE)
-}, error = function(e) {
-  tree_rooted <<- root(tree, outgroup = pasteurella_tip, resolve.root = TRUE)
-})
+# Root at Pasteurella dagmatis (deepest outgroup; Pasteurellaceae, most divergent).
+# The 5 outgroups are NOT monophyletic (Pasteurella is Pasteurellaceae;
+# Gilli_Pra are Orbaceae), so we root at Pasteurella alone.
+# Gilli_Pra taxa will appear as an outgroup clade sister to the main Gilliamella.
+pasteurella_tip <- "Pasteurella_dagmatis"
+tree_rooted     <- root(tree, outgroup = pasteurella_tip, resolve.root = TRUE)
 
 tree_sc <- tree_rooted
 tree_sc$edge.length <- tree_sc$edge.length ^ 0.35
