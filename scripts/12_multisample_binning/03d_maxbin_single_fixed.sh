@@ -1,0 +1,95 @@
+#!/bin/bash
+#SBATCH --job-name=sf_maxbin
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=32G
+#SBATCH --time=08:00:00
+#SBATCH --partition=standard
+#SBATCH --account=hammert_lab
+#SBATCH --output=/dfs10/hammert-lab/nvillabo/Ch2/work_meta/12_multisample_test/logs/maxbin_sf_%A_%a.out
+#SBATCH --error=/dfs10/hammert-lab/nvillabo/Ch2/work_meta/12_multisample_test/logs/maxbin_sf_%A_%a.err
+
+# ============================================================
+# 03d_maxbin_single_fixed.sh
+# Author: Nickole Villabona
+# MaxBin2 on SINGLE-sample depth, with the abundance format fixed
+# ============================================================
+# Builds the BASELINE arm. MaxBin2 contributes 18.6% of the existing DAS
+# Tool bins (34 of 183, 16 of them high quality, and it is the only source
+# of bins in 8 samples), so the single-sample arm cannot be left with the
+# broken abundance format — otherwise "multi beats single" would be partly
+# explained by the bug fix rather than by the method.
+#
+# This is the ONLY binner rerun for the single-sample arm. MetaBAT2 and
+# CONCOCT received correct input in the original run, so 04b reuses their
+# existing bins straight from 05_binning (read-only).
+#
+# The fix: the existing /04_mapping/<s>/<s>_depth.txt is a 5-column jgi
+# table (contigName, contigLen, totalAvgDepth, <bam>, <bam>-var). Column 4
+# is the mean depth. 4b_binning_maxbin.sh passed this whole file to -abund,
+# which expects 2 columns, so MaxBin2 read contigLen as the abundance.
+# Here we extract (contigName, column 4) into a proper 2-column file.
+#
+# Input:  ${SINGLE_MAP_DIR}/<s>/<s>_depth.txt  (read-only, NOT modified)
+#         ${ASSEMBLY_DIR}/<s>/final.contigs.fa (read-only)
+# Output: ${RESULTS}/single_fixed/<s>/maxbin/<s>_maxbin.*.fasta
+#         ${RESULTS}/single_fixed/<s>/maxbin/abund_<s>.txt
+#
+# Usage: sbatch --array=1-22%20 03d_maxbin_single_fixed.sh
+# ============================================================
+
+set -euo pipefail
+
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/config.sh"
+check_subset
+
+: "${SLURM_ARRAY_TASK_ID:?Run with --array=1-${N_SUBSET}}"
+SID="$(sample_from_index "${SLURM_ARRAY_TASK_ID}")"
+[[ -n "${SID}" ]] || { echo "[$(date)] No sample at index ${SLURM_ARRAY_TASK_ID} — exiting."; exit 0; }
+
+CONTIGS="${ASSEMBLY_DIR}/${SID}/final.contigs.fa"
+SINGLE_DEPTH="${SINGLE_MAP_DIR}/${SID}/${SID}_depth.txt"
+OUT="${RESULTS}/single_fixed/${SID}/maxbin"
+ABUND="${OUT}/abund_${SID}.txt"
+
+[[ -s "${CONTIGS}" ]]      || die "missing assembly: ${CONTIGS}"
+[[ -s "${SINGLE_DEPTH}" ]] || die "missing single-sample depth: ${SINGLE_DEPTH}"
+
+mkdir -p "${OUT}" "${LOG_DIR}"
+
+if ls "${OUT}/${SID}_maxbin."*.fasta >/dev/null 2>&1; then
+    echo "[$(date)] fixed MaxBin2 bins already exist for ${SID}, exiting."
+    exit 0
+fi
+
+# ======== DERIVE A CORRECT 2-COLUMN ABUNDANCE FILE ========
+# Assert the layout before trusting column 4. A single-BAM jgi table must
+# have exactly 5 columns; anything else means this file was not produced the
+# way 3a produced it, and we must not guess.
+NF_DEPTH=$(head -1 "${SINGLE_DEPTH}" | awk -F'\t' '{print NF}')
+[[ "${NF_DEPTH}" -eq 5 ]] || \
+    die "${SINGLE_DEPTH} has ${NF_DEPTH} columns, expected 5 (single-BAM jgi table). Refusing to guess which column is the mean depth."
+
+awk -F'\t' 'NR>1 {printf "%s\t%s\n", $1, $4}' "${SINGLE_DEPTH}" > "${ABUND}.tmp"
+mv "${ABUND}.tmp" "${ABUND}"
+[[ -s "${ABUND}" ]] || die "derived abundance file is empty: ${ABUND}"
+
+# Sanity check the fix actually did something: if column 4 equalled column 2
+# the file would be identical to the broken interpretation.
+IDENTICAL=$(awk -F'\t' 'NR>1 && $2==$4 {n++} END {print n+0}' "${SINGLE_DEPTH}")
+N_ROWS=$(( $(wc -l < "${SINGLE_DEPTH}") - 1 ))
+echo "[$(date)] abundance derived from column 4: ${N_ROWS} contigs (${IDENTICAL} where contigLen == depth, expected ~0)"
+
+# ======== RUN MAXBIN2 ========
+cd "${OUT}"
+
+echo "[$(date)] MaxBin2 on ${SID}, single-sample depth, CORRECT 2-column abundance"
+"${MAXBIN2}" \
+  -contig "${CONTIGS}" \
+  -abund "${ABUND}" \
+  -out "${SID}_maxbin" \
+  -thread "${SLURM_CPUS_PER_TASK}" \
+  -min_contig_length "${MIN_CONTIG_LEN}"
+
+N_BINS=$(ls "${OUT}/${SID}_maxbin."*.fasta 2>/dev/null | wc -l)
+N_OLD=$(ls "${SINGLE_BIN_DIR}/${SID}/maxbin/${SID}_maxbin."*.fasta 2>/dev/null | wc -l || true)
+echo "[$(date)] DONE ${SID}: ${N_BINS} bins with fixed abundance (broken run had ${N_OLD})"

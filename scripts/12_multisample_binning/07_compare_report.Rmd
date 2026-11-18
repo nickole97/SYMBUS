@@ -1,0 +1,338 @@
+---
+title: "Multi-sample vs single-sample binning — 22-sample subset"
+author: "Nickole Villabona"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: hide
+    df_print: paged
+params:
+  results:  "/dfs10/hammert-lab/nvillabo/Ch2/work_meta/12_multisample_test"
+  work_base: "/dfs10/hammert-lab/nvillabo/Ch2/work_meta"
+  subset_tsv: "subset_22.tsv"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE,
+                      fig.width = 9, fig.height = 5.5, dpi = 150)
+library(tidyverse)
+
+# --- arm palette -------------------------------------------------------------
+# Three categorical series, fixed order, never cycled. Validated against the
+# six colour checks (lightness band, chroma floor, CVD adjacent dE, normal-
+# vision floor, contrast) in both light and dark surfaces before use.
+ARM_LEVELS <- c("single-BROKEN", "single-FIXED", "multi")
+ARM_PAL <- c("single-BROKEN" = "#0072B2",
+             "single-FIXED"  = "#D55E00",
+             "multi"         = "#009E73")
+
+# Ordinal: MIMAG tiers are ranked, so one hue light -> dark, not categorical hues.
+TIER_LEVELS <- c("HQ", "MQ", "LQ")
+TIER_PAL <- c("HQ" = "#1b4f72", "MQ" = "#5499c7", "LQ" = "#aed6f1")
+
+INK   <- "#1a1a19"   # primary text
+MUTED <- "#6b6b68"   # secondary text / axes
+
+theme_set(
+  theme_minimal(base_size = 12) +
+    theme(
+      panel.grid.minor = element_blank(),
+      panel.grid.major = element_line(colour = "#e8e8e6", linewidth = 0.3),
+      axis.text  = element_text(colour = MUTED),
+      axis.title = element_text(colour = MUTED),
+      plot.title = element_text(colour = INK, face = "bold"),
+      plot.subtitle = element_text(colour = MUTED),
+      legend.position = "top",
+      legend.title = element_blank(),
+      strip.text = element_text(colour = INK, face = "bold")
+    )
+)
+
+tier_of <- function(compl, contam) {
+  dplyr::case_when(
+    compl >  90 & contam <  5 ~ "HQ",
+    compl >= 50 & contam < 10 ~ "MQ",
+    TRUE                      ~ "LQ"
+  )
+}
+```
+
+# What this compares
+
+Three arms, same 22 samples, same assemblies, same binner builds.
+
+| Arm | Depth information | MaxBin2 abundance |
+|---|---|---|
+| **single-BROKEN** | one sample | jgi table passed to `-abund` → contigLen read as abundance |
+| **single-FIXED** *(baseline)* | one sample | correct 2-column file |
+| **multi** | 22 samples | correct per-sample 2-column files via `-abund_list` |
+
+`single-BROKEN` is reused unchanged from the original run and is shown as a
+reference point only. **The valid comparison is single-FIXED vs multi**: it is
+the only pair that differs in exactly one thing, the number of samples
+contributing coverage. MaxBin2 supplies 18.6% of the DAS Tool bins across the
+full 113-sample dataset, so leaving the abundance bug in the baseline would
+have let the bug fix masquerade as a method effect.
+
+```{r inputs}
+subset <- read_tsv(params$subset_tsv, show_col_types = FALSE) %>%
+  mutate(role = factor(role, levels = c("failure", "control", "depth_contrast")),
+         stratum = if_else(subgenus == "Pyrobombus",
+                           "within-subgenus", "cross-subgenus"))
+
+inputs <- tibble::tribble(
+  ~what,                   ~path,
+  "checkm single-FIXED",   file.path(params$results, "checkm/checkm_qa_single_fixed.tsv"),
+  "checkm multi",          file.path(params$results, "checkm/checkm_qa_multi.tsv"),
+  "checkm single-BROKEN",  file.path(params$work_base, "05_binning/checkm_qa_ALL.tsv"),
+  "gtdbtk new arms",       file.path(params$results, "gtdbtk/gtdbtk.bac120.summary.tsv"),
+  "gtdbtk single-BROKEN",  file.path(params$work_base, "08_gtdbtk/gtdbtk.bac120.summary.tsv")
+) %>% mutate(exists = file.exists(path))
+
+knitr::kable(inputs, caption = "Inputs")
+stopifnot("Some inputs are missing — see the table above" = all(inputs$exists))
+```
+
+# 1. DAS Tool bins per sample
+
+```{r bins}
+# Per-binner provenance comes from DAS Tool's own summary table: its `bin_set`
+# column is authoritative, unlike guessing from bin names.
+read_dastool <- function(arm, dir_fun) {
+  subset$sample %>%
+    set_names() %>%
+    map(function(s) {
+      f <- dir_fun(s)
+      if (!file.exists(f)) return(tibble(bin = character(), bin_set = character()))
+      read_tsv(f, show_col_types = FALSE) %>% select(bin, bin_set)
+    }) %>%
+    bind_rows(.id = "sample") %>%
+    mutate(arm = arm)
+}
+
+dastool <- bind_rows(
+  read_dastool("single-BROKEN", function(s)
+    file.path(params$work_base, "05_binning", s, "DASTool",
+              paste0(s, "_DASTool_DASTool_summary.tsv"))),
+  read_dastool("single-FIXED", function(s)
+    file.path(params$results, "single_fixed", s, "DASTool",
+              paste0(s, "_DASTool_DASTool_summary.tsv"))),
+  read_dastool("multi", function(s)
+    file.path(params$results, "multi", s, "DASTool",
+              paste0(s, "_DASTool_DASTool_summary.tsv")))
+) %>% mutate(arm = factor(arm, levels = ARM_LEVELS))
+
+bins_per_sample <- subset %>%
+  select(sample, species, subgenus, role, stratum) %>%
+  crossing(arm = factor(ARM_LEVELS, levels = ARM_LEVELS)) %>%
+  left_join(count(dastool, sample, arm, name = "n_bins"), by = c("sample", "arm")) %>%
+  mutate(n_bins = replace_na(n_bins, 0L))
+
+bins_per_sample %>%
+  group_by(arm) %>%
+  summarise(total_bins = sum(n_bins),
+            samples_with_zero = sum(n_bins == 0),
+            median_bins = median(n_bins), .groups = "drop") %>%
+  knitr::kable(caption = "Bins per arm across the 22 subset samples")
+```
+
+```{r bins-plot, fig.height=7}
+ord <- bins_per_sample %>% filter(arm == "multi") %>% arrange(role, n_bins) %>% pull(sample)
+
+ggplot(bins_per_sample, aes(x = n_bins, y = factor(sample, levels = ord), colour = arm)) +
+  geom_line(aes(group = sample), colour = "#d5d5d2", linewidth = 2) +
+  geom_point(size = 2.6) +
+  scale_colour_manual(values = ARM_PAL, breaks = ARM_LEVELS) +
+  facet_grid(role ~ ., scales = "free_y", space = "free_y") +
+  labs(title = "DAS Tool bins per sample",
+       subtitle = "Grey line joins the three arms for one sample; samples grouped by their role in the design",
+       x = "bins", y = NULL)
+```
+
+# 2. MIMAG tiers (CheckM1)
+
+All arms measured with the same CheckM1 install. `HQ` = >90% complete and
+<5% contaminated; `MQ` = ≥50% and <10%; everything else `LQ`.
+
+```{r checkm}
+# The existing combined table has a header shifted by one column (5c prepends a
+# SAMPLE column to the data rows but not to the header). Read it positionally.
+read_broken_checkm <- function(f) {
+  hdr <- read_lines(f, n_max = 1) %>% str_split("\t") %>% unlist()
+  read_tsv(f, skip = 1, col_names = c("SAMPLE", hdr), show_col_types = FALSE)
+}
+
+qual <- bind_rows(
+  read_broken_checkm(inputs$path[inputs$what == "checkm single-BROKEN"]) %>%
+    transmute(arm = "single-BROKEN", sample = SAMPLE, bin = `Bin Id`,
+              compl = Completeness, contam = Contamination) %>%
+    semi_join(subset, by = "sample"),
+  read_tsv(inputs$path[inputs$what == "checkm single-FIXED"], show_col_types = FALSE) %>%
+    transmute(arm = "single-FIXED", sample = SAMPLE, bin = BIN,
+              compl = Completeness, contam = Contamination),
+  read_tsv(inputs$path[inputs$what == "checkm multi"], show_col_types = FALSE) %>%
+    transmute(arm = "multi", sample = SAMPLE, bin = BIN,
+              compl = Completeness, contam = Contamination)
+) %>%
+  mutate(arm = factor(arm, levels = ARM_LEVELS),
+         tier = factor(tier_of(compl, contam), levels = TIER_LEVELS))
+
+qual %>% count(arm, tier) %>% pivot_wider(names_from = tier, values_from = n, values_fill = 0) %>%
+  knitr::kable(caption = "Bins by MIMAG tier")
+```
+
+```{r tiers-plot, fig.height=3.4}
+ggplot(count(qual, arm, tier), aes(x = n, y = fct_rev(arm), fill = tier)) +
+  geom_col(width = 0.6) +
+  geom_text(aes(label = ifelse(n > 0, n, "")), position = position_stack(vjust = 0.5),
+            colour = "white", size = 3.4) +
+  scale_fill_manual(values = TIER_PAL, breaks = TIER_LEVELS) +
+  labs(title = "MIMAG tiers per arm", subtitle = "CheckM1 on all three arms", x = "bins", y = NULL)
+```
+
+# 3. Per-binner contribution — the CONCOCT retention test
+
+CONCOCT is **already the largest contributor** to the existing MAG set (86 of
+183 bins dataset-wide, 59 of them high quality). The hypothesis is not that it
+starts working, but that its **retention rate** improves: it currently produces
+16–55 bins per sample of which DAS Tool keeps 0–2, because it was given a
+single coverage column when it is designed to exploit covariance across many.
+
+```{r binner}
+binner <- dastool %>% semi_join(subset, by = "sample") %>% count(arm, bin_set)
+
+binner %>% pivot_wider(names_from = arm, values_from = n, values_fill = 0) %>%
+  knitr::kable(caption = "DAS Tool bins by originating binner (subset only)")
+
+ggplot(binner, aes(x = bin_set, y = n, fill = arm)) +
+  geom_col(position = position_dodge(width = 0.75), width = 0.65) +
+  geom_text(aes(label = n), position = position_dodge(width = 0.75),
+            vjust = -0.4, colour = MUTED, size = 3.3) +
+  scale_fill_manual(values = ARM_PAL, breaks = ARM_LEVELS) +
+  labs(title = "Which binner's bins survive DAS Tool",
+       subtitle = "Subset only (n = 22). Dataset-wide context: CONCOCT 86, MetaBAT2 63, MaxBin2 34.",
+       x = NULL, y = "bins kept")
+```
+
+# 4. Taxa recovered — the metric that answers the question
+
+More bins is not the point; **new taxa** is. This compares the *sets* of GTDB
+labels recovered per arm, so a second copy of a species already recovered does
+not count as a gain.
+
+```{r taxa}
+parse_tax <- function(df) {
+  df %>% separate(classification,
+                  into = c("domain","phylum","class","order","family","genus","species"),
+                  sep = ";", fill = "right", remove = FALSE)
+}
+
+tax_new <- read_tsv(inputs$path[inputs$what == "gtdbtk new arms"], show_col_types = FALSE) %>%
+  separate(user_genome, into = c("tag", "sample", "bin"), sep = "__", extra = "merge") %>%
+  mutate(arm = recode(tag, sf = "single-FIXED", ms = "multi")) %>%
+  parse_tax()
+
+tax_broken <- read_tsv(inputs$path[inputs$what == "gtdbtk single-BROKEN"], show_col_types = FALSE) %>%
+  separate(user_genome, into = c("sample", "bin"), sep = "__", extra = "merge") %>%
+  semi_join(subset, by = "sample") %>%
+  mutate(arm = "single-BROKEN") %>%
+  parse_tax()
+
+tax <- bind_rows(tax_new, tax_broken) %>%
+  mutate(arm = factor(arm, levels = ARM_LEVELS),
+         species = if_else(species == "s__" | is.na(species), "(novel / unassigned)", species)) %>%
+  left_join(select(subset, sample, subgenus, role, stratum), by = "sample")
+
+tax %>% group_by(arm) %>%
+  summarise(bins_classified = n(),
+            distinct_genera = n_distinct(genus),
+            distinct_species = n_distinct(species),
+            novel_unassigned = sum(species == "(novel / unassigned)"), .groups = "drop") %>%
+  knitr::kable(caption = "Taxonomic breadth per arm")
+```
+
+```{r taxa-setdiff}
+set_of <- function(a, level) tax %>% filter(arm == a) %>% pull(.data[[level]]) %>% unique()
+
+setdiff_table <- map_dfr(c("genus", "species"), function(lv) {
+  sf <- set_of("single-FIXED", lv); ms <- set_of("multi", lv)
+  tibble(level = lv,
+         in_both = length(intersect(sf, ms)),
+         only_single_FIXED = length(setdiff(sf, ms)),
+         only_multi = length(setdiff(ms, sf)))
+})
+knitr::kable(setdiff_table, caption = "Set comparison, single-FIXED vs multi (the valid comparison)")
+
+# Name them, not just count them.
+for (lv in c("genus", "species")) {
+  gained <- setdiff(set_of("multi", lv), set_of("single-FIXED", lv))
+  lost   <- setdiff(set_of("single-FIXED", lv), set_of("multi", lv))
+  cat("\n**", lv, " gained by multi:** ",
+      if (length(gained)) paste(gained, collapse = ", ") else "none", "\n", sep = "")
+  cat("\n**", lv, " lost by multi:** ",
+      if (length(lost)) paste(lost, collapse = ", ") else "none", "\n", sep = "")
+}
+```
+
+# 5. Does multi-sample depth degrade samples that already bin well?
+
+This decides whether rerunning all 113 samples is a good trade. The 6
+*vosnesenskii* controls already produce 2–5 bins each in the existing run; if
+multi-sample depth rescues failures but damages these, the trade is bad.
+
+**Caveat on interpretation:** the controls come from a different collection
+(Laguna_CA 2022) than the failure block (2020, 2600 m sites), so within the
+all-vs-all they covary mostly with each other. They therefore receive a weaker
+multi-sample perturbation than the failure block does, which makes "no
+degradation" weaker evidence than it looks.
+
+```{r degradation}
+paired <- bins_per_sample %>%
+  filter(arm %in% c("single-FIXED", "multi")) %>%
+  select(sample, role, stratum, arm, n_bins) %>%
+  pivot_wider(names_from = arm, values_from = n_bins) %>%
+  mutate(delta = multi - `single-FIXED`,
+         direction = case_when(delta > 0 ~ "gained", delta < 0 ~ "lost", TRUE ~ "unchanged"))
+
+paired %>% count(role, direction) %>%
+  pivot_wider(names_from = direction, values_from = n, values_fill = 0) %>%
+  knitr::kable(caption = "Change in bin count per sample, single-FIXED -> multi")
+
+# Tier-level movement: a sample can keep its bin count while its bins get worse.
+qual %>%
+  filter(arm %in% c("single-FIXED", "multi")) %>%
+  left_join(select(subset, sample, role), by = "sample") %>%
+  count(role, arm, tier) %>%
+  pivot_wider(names_from = arm, values_from = n, values_fill = 0) %>%
+  knitr::kable(caption = "Tier counts by role — watch the control rows for HQ losses")
+```
+
+# 6. Within-subgenus vs cross-subgenus
+
+Charlotte Huyghe's view is that cross-sample "noise" is not a concern and is to
+some extent necessary for binning. Twenty of the 22 samples are *Pyrobombus*;
+the two *rufocinctus* are *Cullumanobombus*, so this stratification tests that
+on our own data rather than taking it on faith.
+
+```{r stratum}
+bins_per_sample %>%
+  filter(arm %in% c("single-FIXED", "multi")) %>%
+  group_by(stratum, arm) %>%
+  summarise(samples = n_distinct(sample), total_bins = sum(n_bins), .groups = "drop") %>%
+  pivot_wider(names_from = arm, values_from = total_bins) %>%
+  knitr::kable(caption = "Bins by stratum")
+```
+
+The two *rufocinctus* samples also test a different failure mode: 5.7M and 4.7M
+non-host reads yet zero bins, versus *vosnesenskii* at 1.0–1.7M that bin fine.
+If multi-sample depth does not help them, the limitation is probably not depth
+at all — host reads escaping the *B. impatiens* filter are the main suspect,
+which the separate Kraken2 screen addresses.
+
+# Session info
+
+```{r session}
+sessionInfo()
+```
