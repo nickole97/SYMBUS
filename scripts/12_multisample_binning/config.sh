@@ -41,6 +41,13 @@ SCRATCH=/pub/nvillabo/Ch2/12_multisample_test
 # Bins, quality tables and summaries stay on the lab filesystem.
 RESULTS=${WORK_BASE}/12_multisample_test
 
+# Depth products (jgi depth matrix, per-sample abundance files, CONCOCT cut-up
+# FASTA + coverage table) live on the lab filesystem, NOT on scratch: on
+# 2026-11-25 the /pub per-user quota (~75 GB) filled with the 484 BAMs and 02
+# could not even write a text file there. Only BAMs and minimap2 indices stay
+# on scratch, and 02 deletes each assembly's BAMs as soon as it is done.
+DEPTH_DIR=${RESULTS}/02_depth
+
 PAIRS_FILE=${RESULTS}/backmap_pairs.tsv
 LOG_DIR=${RESULTS}/logs
 

@@ -33,7 +33,7 @@
 #
 # Input:  ${SCRATCH}/01_crossmap/<asm>/*.sorted.bam
 #         ${ASSEMBLY_DIR}/<asm>/final.contigs.fa (read-only)
-# Output: ${SCRATCH}/02_depth/<asm>/
+# Output: ${DEPTH_DIR}/<asm>/
 #         - depth.txt, bam_order.txt
 #         - abund_<sample>.txt, abund_list.txt
 #         - contigs_10K.fa, contigs_10K.bed, coverage_table.tsv
@@ -76,7 +76,7 @@ ASM="$(sample_from_index "${SLURM_ARRAY_TASK_ID}")"
 
 CONTIGS="${ASSEMBLY_DIR}/${ASM}/final.contigs.fa"
 BAM_DIR="${SCRATCH}/01_crossmap/${ASM}"
-OUT="${SCRATCH}/02_depth/${ASM}"
+OUT="${DEPTH_DIR}/${ASM}"
 mkdir -p "${OUT}" "${LOG_DIR}"
 
 echo "[$(date)] assembly ${ASM} (task ${SLURM_ARRAY_TASK_ID}/${N_SUBSET})"

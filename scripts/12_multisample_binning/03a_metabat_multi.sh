@@ -20,7 +20,7 @@
 # Parameters are copied from 4a (-m 1500) and the binary is the same
 # binning_env MetaBAT 2.18. Changing either would confound the comparison.
 #
-# Input:  ${SCRATCH}/02_depth/<asm>/depth.txt
+# Input:  ${DEPTH_DIR}/<asm>/depth.txt
 #         ${ASSEMBLY_DIR}/<asm>/final.contigs.fa (read-only)
 # Output: ${RESULTS}/multi/<asm>/metabat/<asm>_metabat.*.fa
 #
@@ -53,7 +53,7 @@ ASM="$(sample_from_index "${SLURM_ARRAY_TASK_ID}")"
 [[ -n "${ASM}" ]] || { echo "[$(date)] No sample at index ${SLURM_ARRAY_TASK_ID} — exiting."; exit 0; }
 
 CONTIGS="${ASSEMBLY_DIR}/${ASM}/final.contigs.fa"
-DEPTH="${SCRATCH}/02_depth/${ASM}/depth.txt"
+DEPTH="${DEPTH_DIR}/${ASM}/depth.txt"
 OUT="${RESULTS}/multi/${ASM}/metabat"
 
 [[ -s "${CONTIGS}" ]] || die "missing assembly: ${CONTIGS}"

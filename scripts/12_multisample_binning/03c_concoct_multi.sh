@@ -24,8 +24,8 @@
 # The cut-up FASTA and the coverage table are both built in 02 (the only
 # step allowed to read the BAMs), so this script just clusters.
 #
-# Input:  ${SCRATCH}/02_depth/<asm>/contigs_10K.fa
-#         ${SCRATCH}/02_depth/<asm>/coverage_table.tsv
+# Input:  ${DEPTH_DIR}/<asm>/contigs_10K.fa
+#         ${DEPTH_DIR}/<asm>/coverage_table.tsv
 #         ${ASSEMBLY_DIR}/<asm>/final.contigs.fa (read-only, for bin extraction)
 # Output: ${RESULTS}/multi/<asm>/concoct/bins/*.fa
 #
@@ -63,7 +63,7 @@ ASM="$(sample_from_index "${SLURM_ARRAY_TASK_ID}")"
 [[ -n "${ASM}" ]] || { echo "[$(date)] No sample at index ${SLURM_ARRAY_TASK_ID} — exiting."; exit 0; }
 
 CONTIGS="${ASSEMBLY_DIR}/${ASM}/final.contigs.fa"
-DEPTH_DIR="${SCRATCH}/02_depth/${ASM}"
+DEPTH_DIR="${DEPTH_DIR}/${ASM}"
 CUT_FA="${DEPTH_DIR}/contigs_10K.fa"
 COV="${DEPTH_DIR}/coverage_table.tsv"
 OUT="${RESULTS}/multi/${ASM}/concoct"

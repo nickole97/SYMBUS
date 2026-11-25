@@ -26,7 +26,7 @@
 # is for: it rebuilds the single-sample arm with the format fixed, so the
 # only difference left between the two arms is one sample vs many.
 #
-# Input:  ${SCRATCH}/02_depth/<asm>/abund_list.txt (+ abund_<sample>.txt)
+# Input:  ${DEPTH_DIR}/<asm>/abund_list.txt (+ abund_<sample>.txt)
 #         ${ASSEMBLY_DIR}/<asm>/final.contigs.fa (read-only)
 # Output: ${RESULTS}/multi/<asm>/maxbin/<asm>_maxbin.*.fasta
 #
@@ -62,7 +62,7 @@ ASM="$(sample_from_index "${SLURM_ARRAY_TASK_ID}")"
 [[ -n "${ASM}" ]] || { echo "[$(date)] No sample at index ${SLURM_ARRAY_TASK_ID} — exiting."; exit 0; }
 
 CONTIGS="${ASSEMBLY_DIR}/${ASM}/final.contigs.fa"
-ABUND_LIST="${SCRATCH}/02_depth/${ASM}/abund_list.txt"
+ABUND_LIST="${DEPTH_DIR}/${ASM}/abund_list.txt"
 OUT="${RESULTS}/multi/${ASM}/maxbin"
 
 [[ -s "${CONTIGS}" ]]    || die "missing assembly: ${CONTIGS}"
