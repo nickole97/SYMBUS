@@ -1,9 +1,9 @@
 genome_id	type	snod_species	host_bee	host_group	country	source	accession	notes
-NV006__54_sub	MAG	Novel sp. A	Bombus funebris	Bombus_Colombia_novel	Colombia	This study	—	inStrain: 8 samples
-NV015__NV015_metabat.8	MAG	Novel sp. B	Bombus sp. (Colombia)	Bombus_Colombia_novel	Colombia	This study	—	Not in MagsToUse_SD
-NV022__NV022_metabat.5	MAG	Novel sp. C	Bombus robustus	Bombus_Colombia_novel	Colombia	This study	—	inStrain: 8 samples
-NV048__NV048_metabat.2	MAG	Novel sp. D	Bombus sp. (Colombia)	Bombus_Colombia_novel	Colombia	This study	—	inStrain: 3 samples
-NV018__13_sub	MAG	Novel sp. E	Bombus sp. (Colombia)	Bombus_Colombia_novel	Colombia	This study	—	inStrain: 4 samples
+NV006__54_sub	MAG	Novel sp. A (Cluster 1)	Bombus funebris	Bombus_Colombia_novel	Colombia	This study	—	inStrain: 8 samples
+NV015__NV015_metabat.8	MAG	Novel sp. B (Cluster 3)	Bombus sp. (Colombia)	Bombus_Colombia_novel	Colombia	This study	—	Not in v3 tree (not in the 46-MAG list); the NV015 MAG in v3 is NV015__NV015_metabat.3 (Cluster 2)
+NV022__NV022_metabat.5	MAG	Novel sp. C (Cluster 2)	Bombus robustus	Bombus_Colombia_novel	Colombia	This study	—	inStrain: 8 samples
+NV048__NV048_metabat.2	MAG	Novel sp. D (Cluster 4)	Bombus sp. (Colombia)	Bombus_Colombia_novel	Colombia	This study	—	inStrain: 3 samples
+NV018__13_sub	MAG	S. sp024103515 (GTDB)	Bombus sp. (Colombia)	Bombus_Colombia_known	Colombia	This study	—	GTDB-Tk: s__Snodgrassella sp024103515 (99.0% ANI to GCA_024103515.1). NOT novel; formerly mislabelled 'Novel sp. E'. The novel NV018 MAG is NV018__21_sub (Cluster 2), absent from v3.
 202006191520__22_sub	MAG	S. alvi_D	Bombus sp. (USA)	Bombus_USA	USA	This study	—	Most data: 325 comparisons
 202206071041G__39	MAG	S. communis	Bombus griseocollis	Bombus_USA	USA	This study	—	Known species
 S_alvi_wkB2	REF	S. alvi	Apis mellifera	Apis	USA	Kwong & Moran 2013	GCF_000600005.1	Type strain
@@ -16,3 +16,5 @@ S_gandavensis_type	REF	S. gandavensis	Bombus pascuorum	Bombus_EU_ref	Belgium	Cor
 ESL0693	REF	Neisseriaceae (Snodgrassella)	Stingless bee	Stingless_bee	Neotropics	Engel lab / mBio 2023	GCA_029433475.1	TaxID 2983239
 Simonsiella_muelleri	OUTGROUP	Simonsiella muelleri	Homo sapiens (oral)	Outgroup	USA	ATCC 29453	GCA_000163775.2	Neisseriaceae; classic Snodgrassella outgroup
 Rivihabitans_pingtungensis	OUTGROUP	Rivihabitans pingtungensis	Freshwater	Outgroup	Taiwan	DSM 29661	GCA_003201855.1	Neisseriaceae; used in Aiswarya-prasad 2024
+GCA_029433345.1	EXCLUDE	Gilliamella (ESL0727)	Stingless bee	Stingless_bee	Neotropics	Engel lab / mBio 2023	GCA_029433345.1	Gilliamella, not Snodgrassella. Leaked into v3 via .faa copied from v2 (02_prodigal); dropped from plots and from v5 input.
+GCA_029433365.1	EXCLUDE	Gilliamella (ESL0721)	Stingless bee	Stingless_bee	Neotropics	Engel lab / mBio 2023	GCA_029433365.1	Gilliamella, not Snodgrassella. Leaked into v3 via .faa copied from v2 (02_prodigal); dropped from plots and from v5 input.

@@ -18,7 +18,7 @@
 **/04_orthofinder/
 **/05_core_OGs/
 **/06_alignments/
-**/07_iqtree/
+**/07_iqtree/*
 **/logs/
 
 # Slurm logs
@@ -36,3 +36,9 @@ __pycache__/
 *.html
 *.knit.md
 *_files/
+
+# Track the final tree files (small text) but not the rest of 07_iqtree/
+!**/07_iqtree/*.treefile
+!**/07_iqtree/*.contree
+!**/07_iqtree/*.iqtree
+!**/07_iqtree/*_tip_table.tsv

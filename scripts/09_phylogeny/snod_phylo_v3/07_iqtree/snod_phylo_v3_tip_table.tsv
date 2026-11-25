@@ -1,0 +1,57 @@
+label	tip_code	ani_cluster	SpeciesID	Country
+202006130802__202006130802_maxbin.001	pens_US_01	S. alvi_D	pensylvanicus	US
+202006140655__39_sub	pens_US_02	S. alvi_D	pensylvanicus	US
+202006141241__9	neva_US_01	S. alvi_C	nevadensis	US
+202006160733__202006160733_maxbin.001	pens_US_03	S. alvi_D	pensylvanicus	US
+202006191005__62	ferv_US_01	S. communis	fervidus	US
+202006191009__20	ferv_US_02	S. communis	fervidus	US
+202006191451__58	ferv_US_03	S. alvi_D	fervidus	US
+202006191520__22_sub	ferv_US_04	S. alvi_D	fervidus	US
+202006231015__64	ferv_US_05	S. alvi_D	fervidus	US
+202006231018__202006231018_metabat.1	ferv_US_06	S. alvi_D	fervidus	US
+202006240912__78	ferv_US_07	S. alvi_D	fervidus	US
+202008061632__202008061632_maxbin.002_sub	ferv_US_08	S. alvi_D	fervidus	US
+202008061638__43	ferv_US_09	S. alvi_D	fervidus	US
+202008071537__202008071537_maxbin.001	hunt_US_01	S. communis	huntii	US
+202008210912__55	sono_US_01	S. alvi_D	sonorus	US
+202008210916__3	sono_US_02	S. alvi_D	sonorus	US
+202008210927__202008210927_metabat.2	sono_US_03	S. alvi_D	sonorus	US
+202008241711__8	sono_US_04	S. alvi_D	sonorus	US
+202008270624__202008270624_metabat.4_sub	sono_US_05	S. alvi_D	sonorus	US
+202008280618__0	sono_US_06	S. alvi_D	sonorus	US
+202008280744__48_sub	sono_US_07	S. alvi_D	sonorus	US
+202009160716__9	pens_US_04	S. alvi_D	pensylvanicus	US
+202009160718__37	pens_US_05	S. alvi_D	pensylvanicus	US
+202204121034G__202204121034G_maxbin.001	vosn_US_01	S. communis	vosnesenskii	US
+202204261031G__202204261031G_maxbin.001	vosn_US_02	S. communis	vosnesenskii	US
+202205261050G__14_sub	vosn_US_03	S. communis	vosnesenskii	US
+202206071034G__20	vosn_US_04	S. communis	vosnesenskii	US
+202206071041G__39	vosn_US_05	S. communis	vosnesenskii	US
+202206231027G__202206231027G_maxbin.001	vosn_US_06	S. communis	vosnesenskii	US
+NV006__54_sub	fune_COL_01	C1	funebris	Colombia
+NV008__NV008_maxbin.001	atra_COL_01	S. alvi_D	atratus	Colombia
+NV009__38	hort_COL_01	C2	hortulanus	Colombia
+NV015__NV015_metabat.3	rubi_COL_01	C2	rubicundus	Colombia
+NV016__43	hort_COL_02	C2	hortulanus	Colombia
+NV018__13_sub	fune_COL_02	S. sp024103515	funebris	Colombia
+NV020__NV020_maxbin.001	fune_COL_03	C1	funebris	Colombia
+NV022__NV022_metabat.5	rubi_COL_02	C2	rubicundus	Colombia
+NV029__1	rubi_COL_03	C2	rubicundus	Colombia
+NV032__17_sub	robu_COL_01	C2	robustus	Colombia
+NV033__14	robu_COL_02	C1	robustus	Colombia
+NV034__NV034_maxbin.003	robu_COL_03	C2	robustus	Colombia
+NV036__75	atra_COL_02	S. alvi_D	atratus	Colombia
+NV048__NV048_metabat.2	robu_COL_04	C4	robustus	Colombia
+NV057__NV057_metabat.2	atra_COL_03	C4	atratus	Colombia
+NV057__NV057_metabat.5	atra_COL_04	S. alvi_D	atratus	Colombia
+NV059__NV059_metabat.2	atra_COL_05	C4	atratus	Colombia
+GCF_000600005.1	GCF_000600005.1	reference	Apis	Reference
+GCF_030758695.1	GCF_030758695.1	reference	Apis	Reference
+GCF_002777855.1	GCF_002777855.1	reference	Apis	Reference
+GCF_002777655.1	GCF_002777655.1	reference	Apis	Reference
+GCF_002777775.1	GCF_002777775.1	reference	Apis	Reference
+GCF_002777335.1	GCF_002777335.1	reference	griseocollis	Reference
+GCA_914768025.1	GCA_914768025.1	reference	pascuorum	Reference
+GCA_029433475.1	GCA_029433475.1	reference	StinglessBee	Reference
+Simonsiella_muelleri	Simonsiella_muelleri	reference	Outgroup	Outgroup
+Rivihabitans_pingtungensis	Rivihabitans_pingtungensis	reference	Outgroup	Outgroup

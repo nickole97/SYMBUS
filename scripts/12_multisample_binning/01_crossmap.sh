@@ -102,11 +102,16 @@ if [[ ! -s "${IDX}" ]]; then
         trap - EXIT
     else
         echo "[$(date)] another task is building ${ASM}.mmi — waiting"
+        # First run (2026-11-25): with %20 concurrency, up to 21 tasks of the same
+        # assembly queue behind one index build; the three largest assemblies
+        # (rufocinctus, 202208170928G) took >30 min to index on a busy node and
+        # 60 waiters died at the old 1800 s limit. Wait up to 3 h; the waiters
+        # cost nothing but a slot.
         WAITED=0
         while [[ ! -s "${IDX}" ]]; do
-            sleep 10
-            WAITED=$((WAITED+10))
-            [[ "${WAITED}" -lt 1800 ]] || die "timed out waiting for ${IDX}"
+            sleep 30
+            WAITED=$((WAITED+30))
+            [[ "${WAITED}" -lt 10800 ]] || die "timed out waiting for ${IDX} after ${WAITED}s"
         done
     fi
 fi
