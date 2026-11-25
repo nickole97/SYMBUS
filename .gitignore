@@ -42,3 +42,7 @@ __pycache__/
 !**/07_iqtree/*.contree
 !**/07_iqtree/*.iqtree
 !**/07_iqtree/*_tip_table.tsv
+
+# Gilliamella v2 keeps its tree under 06_iqtree: track the treefile, not the plots
+**/06_iqtree/*.png
+**/06_iqtree/*.pdf
