@@ -35,6 +35,17 @@
 # Usage: sbatch --array=1-22%20 03c_concoct_multi.sh
 # ============================================================
 
+# Conda activation must come BEFORE `set -euo pipefail` (see 04a). Tools are
+# called by absolute path, but MaxBin2 / CONCOCT / CheckM need their env on
+# PATH to find their own dependencies (first run 2026-11-25 died with
+# "Cannot run HMMER3"). The original 4b only worked because it was submitted
+# from a shell that already had the env active and sbatch inherits PATH.
+module purge
+module load miniconda3/23.5.2
+source ~/.bashrc
+source "$(conda info --base)/etc/profile.d/conda.sh"
+conda activate binning_env
+
 set -euo pipefail
 
 # Under sbatch the script runs from SLURM's spool directory, so BASH_SOURCE does
@@ -45,7 +56,6 @@ SCRIPT_DIR="${SCRIPT_DIR:-/dfs10/hammert-lab/nvillabo/Ch2/SYMBUS/scripts/12_mult
 source "${SCRIPT_DIR}/config.sh"
 check_subset
 
-module purge
 module load samtools/1.15.1
 
 : "${SLURM_ARRAY_TASK_ID:?Run with --array=1-${N_SUBSET}}"
