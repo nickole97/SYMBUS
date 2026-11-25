@@ -61,20 +61,36 @@ OUT="${RESULTS}/multi/${ASM}/metabat"
 
 mkdir -p "${OUT}" "${LOG_DIR}"
 
-if ls "${OUT}/${ASM}_metabat."*.fa >/dev/null 2>&1; then
-    echo "[$(date)] MetaBAT2 bins already exist for ${ASM}, exiting."
+if ls "${OUT}/${ASM}_metabat."*.fa >/dev/null 2>&1 || [[ -e "${OUT}/NO_BINS" ]]; then
+    echo "[$(date)] MetaBAT2 already ran for ${ASM} (bins or NO_BINS marker present), exiting."
     exit 0
 fi
 
 N_SAMP=$(( ( $(head -1 "${DEPTH}" | awk -F'\t' '{print NF}') - 3 ) / 2 ))
 echo "[$(date)] MetaBAT2 on ${ASM} with depth from ${N_SAMP} samples"
 
+# MetaBAT2 exits non-zero when it forms 0 bins ("0 bins (0 bases in total)
+# formed."). For the failure block that is a legitimate result (5 of 22 on
+# 2026-11-25, the same samples with 0 MetaBAT2 bins in the original run), not
+# an error: record NO_BINS and exit 0 so DAS Tool (afterok) still runs.
+RUN_LOG="${OUT}/${ASM}_metabat_run.log"
+set +e
 "${METABAT2}" \
   -i "${CONTIGS}" \
   -a "${DEPTH}" \
   -o "${OUT}/${ASM}_metabat" \
   -m "${MIN_CONTIG_LEN}" \
-  -t "${SLURM_CPUS_PER_TASK}"
+  -t "${SLURM_CPUS_PER_TASK}" 2>&1 | tee "${RUN_LOG}"
+MB_RC=${PIPESTATUS[0]}
+set -e
+if [[ "${MB_RC}" -ne 0 ]]; then
+    if grep -q "0 bins (0 bases in total) formed" "${RUN_LOG}"; then
+        echo "[$(date)] DONE ${ASM}: 0 MetaBAT2 bins (NO_BINS)"
+        : > "${OUT}/NO_BINS"
+        exit 0
+    fi
+    die "MetaBAT2 exited ${MB_RC} on ${ASM} for a reason other than '0 bins formed' — see ${RUN_LOG}"
+fi
 
 N_BINS=$(ls "${OUT}/${ASM}_metabat."*.fa 2>/dev/null | wc -l)
 echo "[$(date)] DONE ${ASM}: ${N_BINS} MetaBAT2 bins"

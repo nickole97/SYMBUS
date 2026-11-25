@@ -88,6 +88,14 @@ THROTTLE=20             # max concurrent array tasks (sbatch --array=1-N%THROTTL
 # instead of all 484 (~70 GB). Set to 0 to keep every BAM.
 DELETE_BAMS_AFTER_DEPTH=1
 
+# ======== PYTHON HYGIENE ========
+# The user's ~/.local/lib/python3.10/site-packages holds numpy 2.2.6 (pip
+# --user), which the env's python loads BEFORE the env's own numpy 1.26.4;
+# CONCOCT's compiled vbgmm then dies with "compiled using NumPy 1.x cannot be
+# run in NumPy 2.2.6" (03c, 2026-11-25). Disable user site-packages for every
+# step-12 job. Do not "fix" this by touching ~/.local.
+export PYTHONNOUSERSITE=1
+
 # ======== TOOLS ========
 # Same absolute paths the existing pipeline uses, so this experiment runs the
 # identical binner builds. Changing a binner version would confound the test.
