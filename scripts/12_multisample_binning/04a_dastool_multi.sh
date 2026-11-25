@@ -109,6 +109,12 @@ INPUT_STR=$(IFS=,; echo "${INPUTS[*]}")
 LABEL_STR=$(IFS=,; echo "${LABELS[*]}")
 echo "[$(date)] DAS Tool on ${ASM} with: ${LABEL_STR}"
 
+# DAS Tool exits 1 with "Error: No single copy genes predicted" when none of
+# the input bins carries a single-copy marker gene. For the failure block that
+# is the legitimate zero-bin result of this arm (2026-11-25: 13 of 22 samples),
+# not a pipeline error: record NO_BINS and exit 0. Any other non-zero exit dies.
+RUN_LOG="${DT}/${ASM}_dastool_run.log"
+set +e
 "${DASTOOL}" \
   -i "${INPUT_STR}" \
   -l "${LABEL_STR}" \
@@ -116,7 +122,17 @@ echo "[$(date)] DAS Tool on ${ASM} with: ${LABEL_STR}"
   -o "${PREFIX}" \
   --threads "${SLURM_CPUS_PER_TASK}" \
   --search_engine diamond \
-  --write_bins
+  --write_bins 2>&1 | tee "${RUN_LOG}"
+DAS_RC=${PIPESTATUS[0]}
+set -e
+if [[ "${DAS_RC}" -ne 0 ]]; then
+    if grep -q "No single copy genes predicted" "${RUN_LOG}"; then
+        echo "[$(date)] DONE ${ASM}: 0 refined bins — DAS Tool found no single-copy genes in any input bin (NO_BINS)"
+        : > "${DT}/NO_BINS"
+        exit 0
+    fi
+    die "DAS Tool exited ${DAS_RC} on ${ASM} for a reason other than 'no single copy genes' — see ${RUN_LOG}"
+fi
 
 N_BINS=$(ls "${PREFIX}_DASTool_bins"/*.fa 2>/dev/null | wc -l || true)
 echo "[$(date)] DONE ${ASM} (multi): ${N_BINS} refined bins"
