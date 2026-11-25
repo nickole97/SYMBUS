@@ -104,7 +104,8 @@ Switching is one line: `SELECTOR=` in `config.sh`.
 
 | | Path |
 |---|---|
-| Bulky intermediates (BAMs, depth matrices, cut-up FASTAs) | `/pub/nvillabo/Ch2/12_multisample_test/` (scratch) |
+| Cross-mapped BAMs + minimap2 indices (deleted per assembly by `02`) | `work_meta/12_multisample_test/scratch/` (dfs10; never `/pub`) |
+| Depth matrices, abundance lists, cut-up FASTAs, coverage tables | `work_meta/12_multisample_test/02_depth/` |
 | Bins, CheckM, GTDB-Tk, summaries | `work_meta/12_multisample_test/` |
 | Scripts and the report source | this directory |
 

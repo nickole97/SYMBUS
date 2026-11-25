@@ -36,8 +36,12 @@ SINGLE_MAP_DIR=${WORK_BASE}/04_mapping
 SINGLE_BIN_DIR=${WORK_BASE}/05_binning
 
 # ======== PATHS: this experiment (WRITE) ========
-# Bulky intermediates (484 BAMs, depth matrices) go to scratch.
-SCRATCH=/pub/nvillabo/Ch2/12_multisample_test
+# Bulky intermediates (cross-mapped BAMs, minimap2 indices). ON dfs10, NOT /pub:
+# /pub/nvillabo is not this project's working space and holds other projects
+# under a shared per-user quota (it overflowed on 2026-11-25 and the user asked
+# that it be left alone). 02_depth_matrix deletes each assembly's BAMs as soon
+# as its depth products are written, so this directory stays small.
+SCRATCH=${WORK_BASE}/12_multisample_test/scratch
 # Bins, quality tables and summaries stay on the lab filesystem.
 RESULTS=${WORK_BASE}/12_multisample_test
 
