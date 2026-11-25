@@ -92,5 +92,13 @@ if [[ "${MB_RC}" -ne 0 ]]; then
     die "MetaBAT2 exited ${MB_RC} on ${ASM} for a reason other than '0 bins formed' — see ${RUN_LOG}"
 fi
 
-N_BINS=$(ls "${OUT}/${ASM}_metabat."*.fa 2>/dev/null | wc -l)
+# Count with find, not `ls | wc -l`: under `set -o pipefail` an `ls` with no
+# match fails the whole pipeline and errexit kills the script right here —
+# which is why the 5 zero-bin samples "failed" in the original run too.
+N_BINS=$(find "${OUT}" -maxdepth 1 -name "${ASM}_metabat.*.fa" | wc -l)
+if [[ "${N_BINS}" -eq 0 ]]; then
+    echo "[$(date)] DONE ${ASM}: 0 MetaBAT2 bins (NO_BINS)"
+    : > "${OUT}/NO_BINS"
+    exit 0
+fi
 echo "[$(date)] DONE ${ASM}: ${N_BINS} MetaBAT2 bins"

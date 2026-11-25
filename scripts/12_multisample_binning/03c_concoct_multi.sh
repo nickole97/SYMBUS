@@ -113,5 +113,5 @@ fi
 mkdir -p "${BINS}"
 "${CONCOCT_EXTRACT}" "${CONTIGS}" "${MERGED}" --output_path "${BINS}"
 
-N_BINS=$(ls "${BINS}"/*.fa 2>/dev/null | wc -l)
+N_BINS=$(find "${OUT}/bins" -maxdepth 1 -name "*.fa" 2>/dev/null | wc -l)   # find, not ls|wc: pipefail-safe
 echo "[$(date)] DONE ${ASM}: ${N_BINS} CONCOCT bins (DAS Tool will keep a subset)"

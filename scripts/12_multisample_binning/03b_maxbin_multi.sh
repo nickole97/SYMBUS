@@ -110,5 +110,10 @@ if [[ "${MAXBIN_RC}" -ne 0 ]]; then
     die "MaxBin2 exited ${MAXBIN_RC} on ${ASM} for a reason other than 'cannot be binned' — see ${OUT}/${ASM}_maxbin.log"
 fi
 
-N_BINS=$(ls "${OUT}/${ASM}_maxbin."*.fasta 2>/dev/null | wc -l)
+N_BINS=$(find "${OUT}" -maxdepth 1 -name "${ASM}_maxbin.*.fasta" | wc -l)   # find, not ls|wc: pipefail-safe
+if [[ "${N_BINS}" -eq 0 ]]; then
+    echo "[$(date)] DONE ${ASM}: 0 MaxBin2 bins (NO_BINS)"
+    : > "${OUT}/NO_BINS"
+    exit 0
+fi
 echo "[$(date)] DONE ${ASM}: ${N_BINS} MaxBin2 bins"
