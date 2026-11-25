@@ -46,6 +46,16 @@
 # Usage: sbatch --array=1-22%20 02_depth_matrix.sh
 # ============================================================
 
+# Conda activation must come BEFORE `set -euo pipefail` (see 04a). The CONCOCT
+# helper scripts (cut_up_fasta.py, concoct_coverage_table.py) are called by
+# absolute path but need binning_env on PATH; the jgi binary from quast_env is
+# still called by its absolute path (pinned on purpose, see config.sh).
+module purge
+module load miniconda3/23.5.2
+source ~/.bashrc
+source "$(conda info --base)/etc/profile.d/conda.sh"
+conda activate binning_env
+
 set -euo pipefail
 
 # Under sbatch the script runs from SLURM's spool directory, so BASH_SOURCE does
@@ -56,7 +66,6 @@ SCRIPT_DIR="${SCRIPT_DIR:-/dfs10/hammert-lab/nvillabo/Ch2/SYMBUS/scripts/12_mult
 source "${SCRIPT_DIR}/config.sh"
 check_subset
 
-module purge
 module load samtools/1.15.1
 
 THREADS="${SLURM_CPUS_PER_TASK:-8}"

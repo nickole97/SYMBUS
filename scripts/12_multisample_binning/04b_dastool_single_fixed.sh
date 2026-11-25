@@ -117,7 +117,8 @@ LABEL_STR=$(IFS=,; echo "${LABELS[*]}")
 echo "[$(date)] DAS Tool on ${SID} with: ${LABEL_STR}"
 
 # DAS Tool exits 1 with "Error: No single copy genes predicted" when none of
-# the input bins carries a single-copy marker gene. For the failure block that
+# the input bins carries a single-copy marker gene, and with 'No bins with
+# bin-score >0.5 found' when they do but none scores. For the failure block that
 # is the legitimate zero-bin result of this arm (2026-11-25: 13 of 22 samples),
 # not a pipeline error: record NO_BINS and exit 0. Any other non-zero exit dies.
 RUN_LOG="${DT}/${SID}_dastool_run.log"
@@ -133,12 +134,12 @@ set +e
 DAS_RC=${PIPESTATUS[0]}
 set -e
 if [[ "${DAS_RC}" -ne 0 ]]; then
-    if grep -q "No single copy genes predicted" "${RUN_LOG}"; then
+    if grep -qE "No single copy genes predicted|No bins with bin-score" "${RUN_LOG}"; then
         echo "[$(date)] DONE ${SID}: 0 refined bins — DAS Tool found no single-copy genes in any input bin (NO_BINS)"
         : > "${DT}/NO_BINS"
         exit 0
     fi
-    die "DAS Tool exited ${DAS_RC} on ${SID} for a reason other than 'no single copy genes' — see ${RUN_LOG}"
+    die "DAS Tool exited ${DAS_RC} on ${SID} for a reason other than 'no SCGs' / 'no bins above score threshold' — see ${RUN_LOG}"
 fi
 
 N_BINS=$(ls "${PREFIX}_DASTool_bins"/*.fa 2>/dev/null | wc -l || true)
