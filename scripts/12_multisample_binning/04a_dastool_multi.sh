@@ -77,7 +77,11 @@ add_binner() {           # add_binner <label> <dir> <extension>
     local label="$1" dir="$2" ext="$3"
     local tsv="${DT}/${ASM}_${label}_scaffolds2bin.tsv"
     if ls "${dir}"/*."${ext}" >/dev/null 2>&1; then
-        "${FASTA2BIN}" -e "${ext}" -i "${dir}" > "${tsv}"
+        # Fasta_to_Contig2Bin.sh copies the whole FASTA header; MetaBAT2
+        # headers carry tab-separated extras, giving a 4-column table that
+        # DAS Tool's fread rejects (see 04b). Keep first token + bin name.
+        "${FASTA2BIN}" -e "${ext}" -i "${dir}" > "${tsv}.raw"
+        awk -F'\t' 'BEGIN{OFS="\t"} {split($1, a, " "); print a[1], $NF}' "${tsv}.raw" > "${tsv}"
         if [[ -s "${tsv}" ]]; then
             INPUTS+=("${tsv}"); LABELS+=("${label}")
             echo "[$(date)]   ${label}: $(cut -f2 "${tsv}" | sort -u | wc -l) bins"

@@ -81,7 +81,14 @@ add_binner() {           # add_binner <label> <dir> <extension>
     local label="$1" dir="$2" ext="$3"
     local tsv="${DT}/${SID}_${label}_scaffolds2bin.tsv"
     if ls "${dir}"/*."${ext}" >/dev/null 2>&1; then
-        "${FASTA2BIN}" -e "${ext}" -i "${dir}" > "${tsv}"
+        # Fasta_to_Contig2Bin.sh copies the whole FASTA header, and MetaBAT2
+        # headers carry tab-separated extras (k141_4<TAB>total_depth=..<TAB>..),
+        # so the raw table has 4 columns and DAS Tool's fread dies with
+        # "Can't assign 2 names to a 4-column data.table" (first run
+        # 2026-11-25). Keep only the first header token and the bin name, as
+        # the original 4d did (.raw kept for inspection).
+        "${FASTA2BIN}" -e "${ext}" -i "${dir}" > "${tsv}.raw"
+        awk -F'\t' 'BEGIN{OFS="\t"} {split($1, a, " "); print a[1], $NF}' "${tsv}.raw" > "${tsv}"
         if [[ -s "${tsv}" ]]; then
             INPUTS+=("${tsv}"); LABELS+=("${label}")
             echo "[$(date)]   ${label}: $(cut -f2 "${tsv}" | sort -u | wc -l) bins"
