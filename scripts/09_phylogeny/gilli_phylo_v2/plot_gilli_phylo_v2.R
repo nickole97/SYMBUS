@@ -140,7 +140,7 @@ p_rect <- ggtree(tree_sc, linewidth = 0.35) %<+% all_tips +
          shape = guide_legend(override.aes = list(fill  = "grey50"))) +
 
   labs(title    = expression(italic("Gilliamella") ~ "phylogeny v2 (rooted)"),
-       subtitle = subtitle_txt · IQ-TREE2 UFboot · branches ^0.35")) +
+       subtitle = subtitle_txt) +
 
   theme_tree2(legend.position = "right") +
   xlim(0, max(node.depth.edgelength(tree_sc)) * 1.65)
