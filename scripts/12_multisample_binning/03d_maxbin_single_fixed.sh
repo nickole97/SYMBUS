@@ -72,8 +72,8 @@ ABUND="${OUT}/abund_${SID}.txt"
 
 mkdir -p "${OUT}" "${LOG_DIR}"
 
-if ls "${OUT}/${SID}_maxbin."*.fasta >/dev/null 2>&1; then
-    echo "[$(date)] fixed MaxBin2 bins already exist for ${SID}, exiting."
+if ls "${OUT}/${SID}_maxbin."*.fasta >/dev/null 2>&1 || [[ -e "${OUT}/NO_BINS" ]]; then
+    echo "[$(date)] fixed MaxBin2 already ran for ${SID} (bins or NO_BINS marker present), exiting."
     exit 0
 fi
 
@@ -99,12 +99,28 @@ echo "[$(date)] abundance derived from column 4: ${N_ROWS} contigs (${IDENTICAL}
 cd "${OUT}"
 
 echo "[$(date)] MaxBin2 on ${SID}, single-sample depth, CORRECT 2-column abundance"
+# MaxBin2 exits 255 when the assembly has too few marker genes to seed bins
+# ("the medium of marker gene number <= 1"). That is a legitimate zero-bin
+# result for the failure block (12 of 22 samples on 2026-11-25), not an error:
+# record it and exit 0 so the DAS Tool step (afterok) can still run. Any other
+# non-zero exit is a real failure.
+set +e
 "${MAXBIN2}" \
   -contig "${CONTIGS}" \
   -abund "${ABUND}" \
   -out "${SID}_maxbin" \
   -thread "${SLURM_CPUS_PER_TASK}" \
   -min_contig_length "${MIN_CONTIG_LEN}"
+MAXBIN_RC=$?
+set -e
+if [[ "${MAXBIN_RC}" -ne 0 ]]; then
+    if grep -q "cannot be binned" "${OUT}/${SID}_maxbin.log" 2>/dev/null; then
+        echo "[$(date)] DONE ${SID}: 0 bins — MaxBin2 found too few marker genes to seed bins (NO_BINS)"
+        : > "${OUT}/NO_BINS"
+        exit 0
+    fi
+    die "MaxBin2 exited ${MAXBIN_RC} on ${SID} for a reason other than 'cannot be binned' — see ${OUT}/${SID}_maxbin.log"
+fi
 
 N_BINS=$(ls "${OUT}/${SID}_maxbin."*.fasta 2>/dev/null | wc -l)
 N_OLD=$(ls "${SINGLE_BIN_DIR}/${SID}/maxbin/${SID}_maxbin."*.fasta 2>/dev/null | wc -l || true)

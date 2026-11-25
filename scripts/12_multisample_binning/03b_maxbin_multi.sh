@@ -78,8 +78,8 @@ N_AB=$(wc -l < "${ABUND_LIST}")
 
 mkdir -p "${OUT}" "${LOG_DIR}"
 
-if ls "${OUT}/${ASM}_maxbin."*.fasta >/dev/null 2>&1; then
-    echo "[$(date)] MaxBin2 bins already exist for ${ASM}, exiting."
+if ls "${OUT}/${ASM}_maxbin."*.fasta >/dev/null 2>&1 || [[ -e "${OUT}/NO_BINS" ]]; then
+    echo "[$(date)] MaxBin2 already ran for ${ASM} (bins or NO_BINS marker present), exiting."
     exit 0
 fi
 
@@ -87,12 +87,28 @@ fi
 cd "${OUT}"
 
 echo "[$(date)] MaxBin2 on ${ASM} with ${N_AB} abundance files"
+# MaxBin2 exits 255 when the assembly has too few marker genes to seed bins
+# ("the medium of marker gene number <= 1"). In the single-FIXED arm this hit
+# 12 of 22 samples (the failure block). It is a legitimate zero-bin result:
+# record it and exit 0 so DAS Tool (afterok) still runs; this is also one of
+# the things the experiment measures (does multi-sample depth change it?).
+set +e
 "${MAXBIN2}" \
   -contig "${CONTIGS}" \
   -abund_list "${ABUND_LIST}" \
   -out "${ASM}_maxbin" \
   -thread "${SLURM_CPUS_PER_TASK}" \
   -min_contig_length "${MIN_CONTIG_LEN}"
+MAXBIN_RC=$?
+set -e
+if [[ "${MAXBIN_RC}" -ne 0 ]]; then
+    if grep -q "cannot be binned" "${OUT}/${ASM}_maxbin.log" 2>/dev/null; then
+        echo "[$(date)] DONE ${ASM}: 0 bins — MaxBin2 found too few marker genes to seed bins (NO_BINS)"
+        : > "${OUT}/NO_BINS"
+        exit 0
+    fi
+    die "MaxBin2 exited ${MAXBIN_RC} on ${ASM} for a reason other than 'cannot be binned' — see ${OUT}/${ASM}_maxbin.log"
+fi
 
 N_BINS=$(ls "${OUT}/${ASM}_maxbin."*.fasta 2>/dev/null | wc -l)
 echo "[$(date)] DONE ${ASM}: ${N_BINS} MaxBin2 bins"
