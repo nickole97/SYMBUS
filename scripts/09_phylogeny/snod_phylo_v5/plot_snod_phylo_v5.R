@@ -11,6 +11,15 @@ md_host   <- read.table("~/Desktop/Ch2/American_bumblebe_md_2025.tsv",
 bee_pal_raw <- read.csv("~/Desktop/Ch2/paleta_abejorros.csv")
 bee_pal     <- setNames(bee_pal_raw$color_hex, bee_pal_raw$especie)
 ref_meta    <- read.delim("00_metadata/genome_metadata.tsv", stringsAsFactors = FALSE)
+# One row per tip of every tree (built 2026-11-25 from GTDB-Tk, CheckM, sample
+# metadata and the FastANI 95 % clusters); used here for the cluster labels.
+# The annotation table predates v5: take each MAG's ANI cluster from its v3
+# row or, for the 6 MAGs added in v5, from its "none" row (same mag_id).
+annot       <- read.delim("../00_metadata/mag_tree_annotation.tsv", stringsAsFactors = FALSE) %>%
+  filter(tree %in% c("snod_v3", "none")) %>%
+  distinct(mag_id, ani_cluster) %>%
+  rename(tip_label_in_tree = mag_id)
+N_CORE_OGS  <- 533   # partitions in 07_iqtree/snod_phylo_v5.iqtree (--min_taxa 56 of 62)
 
 # ── Species abbreviations ─────────────────────────────────────────────────────
 sp_abbr <- c(
@@ -59,7 +68,16 @@ ref_tips <- ref_meta %>%
 # ── Load + root tree ──────────────────────────────────────────────────────────
 tree    <- read.tree(tree_file)
 
-# Root at LCA of outgroup taxa (Simonsiella + Rivihabitans)
+# Two Gilliamella genomes (ESL0721/ESL0727) leaked into the v3 input through
+# .faa files copied from v2 and were plotted as "unk_unk_01/02". They are
+# flagged type == EXCLUDE in the metadata and dropped here; v5 removes them
+# from the input itself.
+exclude_tips <- intersect(ref_meta$accession[ref_meta$type == "EXCLUDE"], tree$tip.label)
+if (length(exclude_tips)) tree <- drop.tip(tree, exclude_tips)   # none expected in v5
+
+# Root at LCA of outgroup taxa (Simonsiella + Rivihabitans). With the two
+# Gilliamella gone the outgroups are each other's closest tips, so the MRCA is
+# the true outgroup node.
 outgroup_tips <- ref_meta %>%
   filter(type == "OUTGROUP") %>%
   pull(genome_id)
@@ -89,14 +107,30 @@ mag_tips <- tibble(label = tree_rooted$tip.label) %>%
     ct_short  = country_abbr[Country],
     is_ref    = FALSE
   ) %>%
+  # Stable numbering: order by MAG id, not by tree order, so rubi_COL_01 is the
+  # same genome in every figure.
+  arrange(label) %>%
   group_by(sp_short, ct_short) %>%
   mutate(n = row_number(),
-         tip_label = paste0(sp_short, "_", ct_short, "_", sprintf("%02d", n))) %>%
+         tip_code = paste0(sp_short, "_", ct_short, "_", sprintf("%02d", n))) %>%
   ungroup() %>%
-  select(label, SpeciesID, Country, tip_label, is_ref)
+  left_join(annot %>% select(tip_label_in_tree, ani_cluster),
+            by = c("label" = "tip_label_in_tree")) %>%
+  mutate(ani_cluster = coalesce(ani_cluster, "NA"),
+         tip_label   = paste0(tip_code, "  [", ani_cluster, "]")) %>%
+  select(label, SpeciesID, Country, tip_label, tip_code, ani_cluster, is_ref)
 
 all_tips <- bind_rows(mag_tips,
-                      ref_tips %>% select(label, SpeciesID, Country, tip_label, is_ref))
+                      ref_tips %>% select(label, SpeciesID, Country, tip_label, is_ref) %>%
+                        mutate(tip_code = label, ani_cluster = "reference"))
+
+# Tip → metadata table for the record (what every tip in the figure is)
+write.table(all_tips %>% select(label, tip_code, ani_cluster, SpeciesID, Country),
+            "07_iqtree/snod_phylo_v5_tip_table.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
+
+n_mags <- sum(!all_tips$is_ref); n_refs <- sum(ref_tips$Country == "Reference"); n_out <- sum(ref_tips$Country == "Outgroup")
+subtitle_txt <- sprintf("%d core genes · %d taxa (%d MAGs + %d refs + %d outgroups) · IQ-TREE2 UFboot · branches ^0.35",
+                        N_CORE_OGS, length(tree_sc$tip.label), n_mags, n_refs, n_out)
 
 # ── Plot: rectangular ─────────────────────────────────────────────────────────
 p_rect <- ggtree(tree_sc, linewidth = 0.35) %<+% all_tips +
@@ -125,8 +159,8 @@ p_rect <- ggtree(tree_sc, linewidth = 0.35) %<+% all_tips +
   guides(fill  = guide_legend(override.aes = list(shape = 21), ncol = 1),
          shape = guide_legend(override.aes = list(fill  = "grey50"))) +
 
-  labs(title    = expression(italic("Snodgrassella") ~ "phylogeny v3 (rooted)"),
-       subtitle = "411 core genes · 56 taxa (46 MAGs + 8 refs + 2 outgroups) · IQ-TREE2 UFboot · branches ^0.35") +
+  labs(title    = expression(italic("Snodgrassella") ~ "phylogeny v5 (rooted)"),
+       subtitle = subtitle_txt) +
 
   theme_tree2(legend.position = "right") +
   xlim(0, max(node.depth.edgelength(tree_sc)) * 1.65)
@@ -152,8 +186,8 @@ p_circ <- ggtree(tree_sc, layout = "circular", linewidth = 0.35) %<+% all_tips +
   guides(fill  = guide_legend(override.aes = list(shape = 21), ncol = 1),
          shape = guide_legend(override.aes = list(fill  = "grey50"))) +
 
-  labs(title    = expression(italic("Snodgrassella") ~ "phylogeny v3 (circular, rooted)"),
-       subtitle = "411 core genes · 56 taxa · IQ-TREE2 UFboot · branches ^0.35") +
+  labs(title    = expression(italic("Snodgrassella") ~ "phylogeny v5 (circular, rooted)"),
+       subtitle = subtitle_txt) +
 
   theme_tree2(legend.position = "right")
 
