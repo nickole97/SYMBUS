@@ -11,6 +11,12 @@ md_host   <- read.table("~/Desktop/Ch2/American_bumblebe_md_2025.tsv",
 bee_pal_raw <- read.csv("~/Desktop/Ch2/paleta_abejorros.csv")
 bee_pal     <- setNames(bee_pal_raw$color_hex, bee_pal_raw$especie)
 ref_meta    <- read.delim("00_metadata/genome_metadata.tsv", stringsAsFactors = FALSE)
+# ANI cluster / GTDB species per MAG, from the per-tip annotation table
+# (09_phylogeny/00_metadata/mag_tree_annotation.tsv, rows tree == "gilli_v2")
+annot <- read.delim("../00_metadata/mag_tree_annotation.tsv", stringsAsFactors = FALSE) %>%
+  filter(tree == "gilli_v2", ani_cluster != "", !ani_cluster %in% c("reference", "outgroup")) %>%
+  distinct(mag_id, ani_cluster) %>%
+  mutate(ani_cluster = sub("Gilliamella sp. (sin especie GTDB)", "Gilliamella sp. (no GTDB species)", ani_cluster, fixed = TRUE))
 
 # ── Species abbreviations ─────────────────────────────────────────────────────
 sp_abbr <- c(
@@ -33,7 +39,7 @@ extra_pal <- c(
   "Apis"         = "#E8A823",
   "BombusRef"    = "#9966CC",   # purple for Bombus reference isolates
   "StinglessBee" = "#E84646",   # red for stingless bee Orbaceae (ESL0721/0727)
-  "Outgroup"     = "#BBBBBB"
+  "Outgroup"     = "#FFFFFF"   # white: nevadensis already uses grey
 )
 full_pal <- c(bee_pal, extra_pal)
 
@@ -60,10 +66,9 @@ ref_tips <- ref_meta %>%
 # ── Load + root tree ──────────────────────────────────────────────────────────
 tree    <- read.tree(tree_file)
 
-# Root at Pasteurella dagmatis (deepest outgroup; Pasteurellaceae, most divergent).
-# The 5 outgroups are NOT monophyletic (Pasteurella is Pasteurellaceae;
-# Gilli_Pra are Orbaceae), so we root at Pasteurella alone.
-# Gilli_Pra taxa will appear as an outgroup clade sister to the main Gilliamella.
+# Root at Pasteurella dagmatis, the only true outgroup (Pasteurellaceae).
+# Gilli_Pra-s* are Gilliamella references from Bombus pratorum (China); they were
+# typed OUTGROUP in the first version of genome_metadata.tsv and are now REF.
 pasteurella_tip <- "Pasteurella_dagmatis"
 tree_rooted     <- root(tree, outgroup = pasteurella_tip, resolve.root = TRUE)
 
@@ -94,6 +99,8 @@ mag_tips <- tibble(label = tree_rooted$tip.label) %>%
   mutate(n = row_number(),
          tip_label = paste0(sp_short, "_", ct_short, "_", sprintf("%02d", n))) %>%
   ungroup() %>%
+  left_join(annot, by = c("label" = "mag_id")) %>%
+  mutate(tip_label = paste0(tip_label, "  [", ifelse(is.na(ani_cluster), "?", ani_cluster), "]")) %>%
   select(label, SpeciesID, Country, tip_label, is_ref)
 
 all_tips <- bind_rows(mag_tips,
@@ -101,6 +108,10 @@ all_tips <- bind_rows(mag_tips,
 
 # ── Plot: rectangular ─────────────────────────────────────────────────────────
 n_taxa <- length(tree_rooted$tip.label)
+N_CORE_OGS <- 484   # OrthoFinder core OGs in the v2 concatenation (149 136 aa; verified on the cluster 2026-11-25)
+n_mags <- sum(!all_tips$is_ref); n_out <- sum(all_tips$Country == "Outgroup"); n_refs <- sum(all_tips$Country == "Reference")
+subtitle_txt <- sprintf("%d core genes · %d taxa (%d MAGs + %d refs + %d outgroup) · IQ-TREE2 UFboot · branches ^0.35",
+                        N_CORE_OGS, n_taxa, n_mags, n_refs, n_out)
 
 p_rect <- ggtree(tree_sc, linewidth = 0.35) %<+% all_tips +
 
@@ -129,8 +140,7 @@ p_rect <- ggtree(tree_sc, linewidth = 0.35) %<+% all_tips +
          shape = guide_legend(override.aes = list(fill  = "grey50"))) +
 
   labs(title    = expression(italic("Gilliamella") ~ "phylogeny v2 (rooted)"),
-       subtitle = paste0("core genes · ", n_taxa,
-                         " taxa (33 MAGs + 10 refs + 5 outgroups) · IQ-TREE2 UFboot · branches ^0.35")) +
+       subtitle = subtitle_txt · IQ-TREE2 UFboot · branches ^0.35")) +
 
   theme_tree2(legend.position = "right") +
   xlim(0, max(node.depth.edgelength(tree_sc)) * 1.65)
@@ -157,7 +167,7 @@ p_circ <- ggtree(tree_sc, layout = "circular", linewidth = 0.35) %<+% all_tips +
          shape = guide_legend(override.aes = list(fill  = "grey50"))) +
 
   labs(title    = expression(italic("Gilliamella") ~ "phylogeny v2 (circular, rooted)"),
-       subtitle = "core genes · IQ-TREE2 UFboot · branches ^0.35") +
+       subtitle = subtitle_txt) +
 
   theme_tree2(legend.position = "right")
 

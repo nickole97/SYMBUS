@@ -41,7 +41,7 @@ extra_pal <- c(
   "Apis"         = "#E8A823",
   "StinglessBee" = "#E84646",
   "pascuorum"    = "#7FBFFF",
-  "Outgroup"     = "#BBBBBB"
+  "Outgroup"     = "#FFFFFF"   # white: nevadensis already uses grey
 )
 full_pal <- c(bee_pal, extra_pal)
 
