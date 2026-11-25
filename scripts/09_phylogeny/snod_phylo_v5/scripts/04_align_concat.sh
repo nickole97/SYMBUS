@@ -21,6 +21,8 @@ N_CORE=$(wc -l < "${OG_DIR}/core_OG_ids.txt")
 echo "Aligning ${N_CORE} core orthogroups..."
 
 while IFS= read -r OG; do
+    # Skip OGs already aligned and trimmed (rerun after the concatenation fix).
+    if [[ -s "${ALN_DIR}/trimmed/${OG}.trimmed.aln" ]]; then continue; fi
     mafft \
         --auto \
         --thread ${SLURM_CPUS_PER_TASK} \
@@ -51,9 +53,21 @@ out_dir = root / "05_alignments"
 all_alns = sorted(aln_dir.glob("*.trimmed.aln"))
 print(f"Found {len(all_alns)} trimmed alignments")
 
-supermatrix     = defaultdict(str)
+# With --min_taxa < all, an OG can be absent from some genomes. Every taxon
+# must still get a block for every partition, so absent taxa are padded with
+# gaps; otherwise sequence lengths differ and IQ-TREE refuses the matrix
+# ("contains not enough characters", first v5 run 2026-11-25).
+taxa = set()
+for aln_file in all_alns:
+    for rec in AlignIO.read(aln_file, "fasta"):
+        taxa.add(rec.id)
+taxa = sorted(taxa)
+print(f"Taxa across alignments: {len(taxa)}")
+
+supermatrix     = {t: "" for t in taxa}
 partition_lines = []
 pos = 1
+n_padded = 0
 
 for aln_file in all_alns:
     aln     = AlignIO.read(aln_file, "fasta")
@@ -61,8 +75,16 @@ for aln_file in all_alns:
     aln_len = aln.get_alignment_length()
     partition_lines.append(f"LG, {og} = {pos}-{pos + aln_len - 1}")
     pos += aln_len
-    for rec in aln:
-        supermatrix[rec.id] += str(rec.seq)
+    present = {rec.id: str(rec.seq) for rec in aln}
+    for t in taxa:
+        if t in present:
+            supermatrix[t] += present[t]
+        else:
+            supermatrix[t] += "-" * aln_len
+            n_padded += 1
+print(f"Padded (taxon, OG) cells: {n_padded}")
+lengths = {len(v) for v in supermatrix.values()}
+assert len(lengths) == 1, f"unequal lengths after padding: {lengths}"
 
 concat_fasta = out_dir / "supermatrix.faa"
 records = [SeqRecord(Seq(seq), id=name, description="")
