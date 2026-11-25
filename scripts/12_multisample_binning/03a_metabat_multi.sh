@@ -29,7 +29,12 @@
 
 set -euo pipefail
 
-source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/config.sh"
+# Under sbatch the script runs from SLURM's spool directory, so BASH_SOURCE does
+# NOT point at this directory (first run, 2026-11-25: all 22 tasks died with
+# "config.sh: No such file or directory"). Use the absolute path; override with
+# SCRIPT_DIR=... if the repo ever moves.
+SCRIPT_DIR="${SCRIPT_DIR:-/dfs10/hammert-lab/nvillabo/Ch2/SYMBUS/scripts/12_multisample_binning}"
+source "${SCRIPT_DIR}/config.sh"
 check_subset
 
 : "${SLURM_ARRAY_TASK_ID:?Run with --array=1-${N_SUBSET}}"

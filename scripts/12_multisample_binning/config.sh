@@ -45,7 +45,10 @@ PAIRS_FILE=${RESULTS}/backmap_pairs.tsv
 LOG_DIR=${RESULTS}/logs
 
 # ======== SUBSET ========
-SUBSET_TSV="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/subset_22.tsv"
+# SCRIPT_DIR is set by every sbatch script before sourcing this file (SLURM runs
+# scripts from a spool dir, so BASH_SOURCE is unreliable there); fall back to
+# BASH_SOURCE only for interactive use on the login node.
+SUBSET_TSV="${SCRIPT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}/subset_22.tsv"
 
 # Sample IDs only, in a stable order. SLURM array indices are 1-based and
 # index THIS list, so never reorder it mid-experiment.
